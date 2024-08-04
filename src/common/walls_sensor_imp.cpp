@@ -1,3 +1,4 @@
+// src/common/walls_sensor_imp.cpp
 #include "walls_sensor_imp.h"
 
 WallsSensorImp::WallsSensorImp(const Location& curr_location) : house(nullptr), curr_location(curr_location) {}

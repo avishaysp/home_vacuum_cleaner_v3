@@ -1,6 +1,7 @@
+// src/common/battery_meter_imp.h
 #pragma once
 
-#include "../skelaton/battery_meter.h"
+#include "BatteryMeter.h"
 #include "../logger.h"
 
 

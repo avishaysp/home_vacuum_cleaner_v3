@@ -1,6 +1,7 @@
+// src/common/dirt_sensor_imp.h
 #pragma once
 
-#include "../skelaton/dirt_sensor.h"
+#include "DirtSensor.h"
 #include "../logger.h"
 #include "../house.h"
 

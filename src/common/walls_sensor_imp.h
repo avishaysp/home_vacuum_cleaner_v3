@@ -1,7 +1,8 @@
+// src/common/walls_sensor_imp.h
 #pragma once
 
-#include "../skelaton/enums.h"
-#include "../skelaton/walls_sensor.h"
+#include "enums.h"
+#include "WallSensor.h"
 #include "../logger.h"
 #include "../house.h"
 
