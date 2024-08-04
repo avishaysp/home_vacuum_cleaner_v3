@@ -13,7 +13,7 @@ House::Tile& House::getTile(Location loc) {
 }
 
 House::Tile& House::getTile(size_t row, size_t col) {
-    logger.log(INFO, std::format("House | getTile ({},{})", row, col), FILE_LOC);
+    logger.log(INFO, std::format("getTile ({},{})", row, col), FILE_LOC);
     return mat[row][col];
 }
 

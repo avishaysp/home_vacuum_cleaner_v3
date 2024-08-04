@@ -78,7 +78,7 @@ void FileReader::ParseHouse(std::ifstream &file, std::shared_ptr<House> house) c
                 logger.log(INFO, std::format("Set a Docking Station ({},{})", row_index, col_index), FILE_LOC);
             } else if (c == 'W') {
                 house->getTile(row_index, col_index).setAsWall();
-                logger.log(INFO, std::format("FileReader | ParseHouse Set a Wall ({},{})", row_index, col_index), FILE_LOC);
+                logger.log(INFO, std::format("ParseHouse Set a Wall ({},{})", row_index, col_index), FILE_LOC);
             } else if (c == ' ') {
                 house->getTile(row_index, col_index).setDirtLevel(0);
                 logger.log(INFO, std::format("Set an empty Tile ({},{})", row_index, col_index), FILE_LOC);
