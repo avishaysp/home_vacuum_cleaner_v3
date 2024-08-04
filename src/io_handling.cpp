@@ -17,7 +17,7 @@ std::vector<std::string> FileReader::split(const std::string &str, const char de
 size_t FileReader::readArgument(const std::string &str) const {
     std::vector<std::string> splits = split(str, '=');
     if (splits.size() != 2) {
-        logger.log(FATAL, "Invalid format: " + str);
+        logger.log(FATAL, "Invalid format: " + str, FILE_LOC);
     }
 
     std::string str_arg = trim(splits[1]);
@@ -29,9 +29,9 @@ size_t FileReader::strToSize_t(const std::string &str) const {
         size_t res = std::stoull(str);
         return res;
     } catch (const std::invalid_argument& e) {
-        logger.log(FATAL, "Invalid argument: " + std::string(e.what()));
+        logger.log(FATAL, "Invalid argument: " + std::string(e.what()), FILE_LOC);
     } catch (const std::out_of_range& e) {
-        logger.log(FATAL, "Out of range: " + std::string(e.what()));
+        logger.log(FATAL, "Out of range: " + std::string(e.what()), FILE_LOC);
     }
     return 0;
 }
@@ -61,7 +61,7 @@ Location FileReader::parseLocation(const std::string &str) const {
 
 void FileReader::ParseHouse(std::ifstream &file, std::shared_ptr<House> house) const {
     if (!file.is_open()) {
-        logger.log(FATAL, "error reading house from file");
+        logger.log(FATAL, "error reading house from file", FILE_LOC);
     }
     size_t num_of_rows = house->getRowsCount();
     size_t num_of_cols = house->getColsCount();
@@ -75,23 +75,23 @@ void FileReader::ParseHouse(std::ifstream &file, std::shared_ptr<House> house) c
             if (c == 'D') {
                 house->getTile(row_index, col_index).setAsDockingStation();
                 house->setDockingStation(Location(row_index, col_index));
-                logger.log(INFO, std::format("Set a Docking Station ({},{})", row_index, col_index));
+                logger.log(INFO, std::format("Set a Docking Station ({},{})", row_index, col_index), FILE_LOC);
             } else if (c == 'W') {
                 house->getTile(row_index, col_index).setAsWall();
-                logger.log(INFO, std::format("FileReader | ParseHouse Set a Wall ({},{})", row_index, col_index));
+                logger.log(INFO, std::format("FileReader | ParseHouse Set a Wall ({},{})", row_index, col_index), FILE_LOC);
             } else if (c == ' ') {
                 house->getTile(row_index, col_index).setDirtLevel(0);
-                logger.log(INFO, std::format("Set an empty Tile ({},{})", row_index, col_index));
+                logger.log(INFO, std::format("Set an empty Tile ({},{})", row_index, col_index), FILE_LOC);
             } else if (isdigit(c)) {
                 house->getTile(row_index, col_index).setDirtLevel(int(c - '0'));
-                logger.log(INFO, std::format("Set an dirty Tile ({},{}). Dirt level: {}", row_index, col_index, int(c - '0')));
+                logger.log(INFO, std::format("Set an dirty Tile ({},{}). Dirt level: {}", row_index, col_index, int(c - '0')), FILE_LOC);
             } else {
-                logger.log(FATAL, std::format("Invalid charecter in house map ({},{})", row_index, col_index));
+                logger.log(FATAL, std::format("Invalid charecter in house map ({},{})", row_index, col_index), FILE_LOC);
             }
         }
         row_index++;
     }
-    logger.log(INFO, std::format("Populated house of size {} by {}",num_of_rows, num_of_cols));
+    logger.log(INFO, std::format("Populated house of size {} by {}",num_of_rows, num_of_cols), FILE_LOC);
 }
 
 
@@ -107,37 +107,37 @@ FileReader::file_reader_output FileReader::readFile() const {
     std::ifstream file(file_path);
 
     if (!file.is_open()) {
-        logger.log(FATAL, "Failed to open the file: " + file_path);
+        logger.log(FATAL, "Failed to open the file: " + file_path, FILE_LOC);
     }
 
     std::string line;
 
     if (!std::getline(file, line)) {
-        logger.log(FATAL, "Failed to read first line of input file");
+        logger.log(FATAL, "Failed to read first line of input file", FILE_LOC);
     }
 
     if (std::getline(file, line)) {
         max_num_of_steps = readArgument(line);
     } else {
-        logger.log(FATAL, "Failed to read 2nd line with MaxSteps");
+        logger.log(FATAL, "Failed to read 2nd line with MaxSteps", FILE_LOC);
     }
 
     if (std::getline(file, line)) {
         max_battery_steps = readArgument(line);
     } else {
-        logger.log(FATAL, "Failed to read 3rd line with MaxBattery");
+        logger.log(FATAL, "Failed to read 3rd line with MaxBattery", FILE_LOC);
     }
 
     if (std::getline(file, line)) {
         rows_count = readArgument(line);
     } else {
-        logger.log(FATAL, "Failed to read 4th line with Rows");
+        logger.log(FATAL, "Failed to read 4th line with Rows", FILE_LOC);
     }
 
     if (std::getline(file, line)) {
         cols_count = readArgument(line);
     } else {
-        logger.log(FATAL, "Failed to read 5th line with Cols");
+        logger.log(FATAL, "Failed to read 5th line with Cols", FILE_LOC);
     }
 
     std::shared_ptr<House> house = std::make_shared<House>(rows_count, cols_count);

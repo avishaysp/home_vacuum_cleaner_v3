@@ -1,10 +1,12 @@
-#ifndef LOGGER_H
-#define LOGGER_H
+// src/logger.h
+#pragma once
 
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <format>
+
+#define FILE_LOC __FILE__, __LINE__
 
 enum LogLevel {
     INFO,
@@ -15,8 +17,7 @@ enum LogLevel {
 class Logger {
 public:
     static Logger& getInstance();
-
-    void log(LogLevel level, const std::string& message);
+    void log(LogLevel level, const std::string& message, const std::string& file, int line);
 
 private:
     Logger() : logFile("vacuum_cleaner.log"), firstOpen(true) {}
@@ -34,5 +35,3 @@ private:
 };
 
 extern Logger& logger;
-
-#endif // LOGGER_H

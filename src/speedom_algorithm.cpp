@@ -33,7 +33,7 @@ void SpeedomAlgorithm::setBatterySize(size_t battery_size){
 }
 
 bool SpeedomAlgorithm::isFeasible(size_t travel_distance, size_t current_battery) const {
-    logger.log(INFO, std::format("SpeedomAlgorithm | isFeasible travel distance: {}, current battery: {}, max steps: {}", travel_distance, current_battery, max_steps));
+    logger.log(INFO, std::format("SpeedomAlgorithm | isFeasible travel distance: {}, current battery: {}, max steps: {}", travel_distance, current_battery, max_steps), FILE_LOC);
     return travel_distance + 1 <= std::min(current_battery, max_steps);
 }
 
@@ -44,11 +44,11 @@ Step SpeedomAlgorithm::updateCurrentLocAndGetNextStep(InternalHouse::LocationTyp
 }
 
 Step SpeedomAlgorithm::calculateNextStep() {
-    logger.log(INFO, "SpeedomAlgorithm | nextStep");
+    logger.log(INFO, "SpeedomAlgorithm | nextStep", FILE_LOC);
     std::vector<Location> possibleLocations = getPossibleLocations();
     size_t battery_level = battery_meter->getBatteryState();
     size_t dirt_level = current_location == starting_location ? 0 : dirt_sensor->dirtLevel();
-    logger.log(INFO, std::format("Speedom | current_location: {}, battery_level: {}, dirt_level: {}", current_location.toString(), battery_level, dirt_level));
+    logger.log(INFO, std::format("Speedom | current_location: {}, battery_level: {}, dirt_level: {}", current_location.toString(), battery_level, dirt_level), FILE_LOC);
 
     internal_house.updateGraph(dirt_level, possibleLocations);
 
@@ -102,7 +102,7 @@ Step SpeedomAlgorithm::nextStep() {
 
 
 std::vector<Location> SpeedomAlgorithm::getPossibleLocations() const {
-    logger.log(INFO, "SpeedomAlgorithm | getPossibleLocations");
+    logger.log(INFO, "SpeedomAlgorithm | getPossibleLocations", FILE_LOC);
     std::vector<Location> possible_Locations;
     int curr_row = current_location.getRow();
     int curr_col = current_location.getCol();
@@ -123,7 +123,7 @@ std::vector<Location> SpeedomAlgorithm::getPossibleLocations() const {
 
 void SpeedomAlgorithm::InternalHouse::bfs(LocationType start, std::optional<Location> chosen_location) {
 
-    logger.log(INFO, std::format("SpeedomAlgorithm | started BFS from {}", locationTypetoString(start)));
+    logger.log(INFO, std::format("SpeedomAlgorithm | started BFS from {}", locationTypetoString(start)), FILE_LOC);
     std::queue<Location> q;
     std::unordered_set<Location> bfsVisited;
 
@@ -173,7 +173,7 @@ void SpeedomAlgorithm::InternalHouse::bfs(LocationType start, std::optional<Loca
 
 
 size_t SpeedomAlgorithm::InternalHouse::getDistanceToDoc(Location other_location) const {
-    logger.log(INFO, "SpeedomAlgorithm | getDistanceToDoc");
+    logger.log(INFO, "SpeedomAlgorithm | getDistanceToDoc", FILE_LOC);
     return internal_graph.at(other_location).distance_from_docking_station;
 }
 
@@ -184,7 +184,7 @@ Location SpeedomAlgorithm::InternalHouse::getNextLocationToTarget(InternalHouse:
 
 std::pair<Step, Location> SpeedomAlgorithm::InternalHouse::calcStepToTarget(InternalHouse::LocationType target) const {
     Location next = getNextLocationToTarget(target);
-       logger.log(INFO, std::format("SpeedomAlgorithm | calcStepToTarget, next location : {}", next.toString()));
+       logger.log(INFO, std::format("SpeedomAlgorithm | calcStepToTarget, next location : {}", next.toString()), FILE_LOC);
     if (next.getRow() > current_location.getRow()){
         return std::make_pair(Step::South, next);
     }
@@ -199,12 +199,12 @@ std::pair<Step, Location> SpeedomAlgorithm::InternalHouse::calcStepToTarget(Inte
 }
 
 void SpeedomAlgorithm::InternalHouse::updateGraph(size_t dirt_level, const std::vector<Location>& possible_Locations) {
-    logger.log(INFO, "SpeedomAlgorithm | updateGraph");
+    logger.log(INFO, "SpeedomAlgorithm | updateGraph", FILE_LOC);
     internal_graph.at(current_location).dirt_level = dirt_level;
     if(internal_graph.at(current_location).visited) {
         return;
     }
-    logger.log(INFO, "Speedom Algorithm | after verifying visited");
+    logger.log(INFO, "Speedom Algorithm | after verifying visited", FILE_LOC);
     internal_graph.at(current_location).visited = true;
     internal_graph.at(current_location).neighbors = possible_Locations;
     for (auto& loc : possible_Locations) {

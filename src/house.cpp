@@ -13,7 +13,7 @@ House::Tile& House::getTile(Location loc) {
 }
 
 House::Tile& House::getTile(size_t row, size_t col) {
-    logger.log(INFO, std::format("House | getTile ({},{})", row, col));
+    logger.log(INFO, std::format("House | getTile ({},{})", row, col), FILE_LOC);
     return mat[row][col];
 }
 
@@ -44,7 +44,7 @@ void House::setDockingStation(Location docking_loc) {
 }
 
 int House::calcTotalDirt() const {
-    logger.log(INFO, "calculating dirt");
+    logger.log(INFO, "calculating dirt", FILE_LOC);
     int sum = 0;
     for (size_t i = 0; i < rows; i++) {
         for (size_t j = 0; j < cols; j++) {
@@ -100,21 +100,21 @@ void House::Tile::setAsDockingStation() {
 
 int House::Tile::getDirtLevel() const {
     if (type != Open) {
-        logger.log(FATAL, "Tried to get the dirt level of a Wall/Docking tile");
+        logger.log(FATAL, "Tried to get the dirt level of a Wall/Docking tile", FILE_LOC);
     }
     return dirt_level;
 }
 
 void House::Tile::setDirtLevel(int new_dirt) {
     if (type != Open) {
-        logger.log(WARNING, "Set the dirt level of a Wall/Docking tile");
+        logger.log(WARNING, "Set the dirt level of a Wall/Docking tile", FILE_LOC);
     }
     dirt_level = new_dirt;
 }
 
 void House::Tile::decreaseOneDirt() {
     if (type != Open) {
-        logger.log(WARNING, "Tried todecrease the dirt level of a Wall/Docking tile");
+        logger.log(WARNING, "Tried todecrease the dirt level of a Wall/Docking tile", FILE_LOC);
         return;
     }
     if (dirt_level > 0) {
