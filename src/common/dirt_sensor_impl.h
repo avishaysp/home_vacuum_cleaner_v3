@@ -2,8 +2,8 @@
 #pragma once
 
 #include "DirtSensor.h"
-#include "../logger.h"
-#include "../house.h"
+#include "logger.h"
+#include "house.h"
 
 
 class DirtSensorImpl: public DirtSensor {

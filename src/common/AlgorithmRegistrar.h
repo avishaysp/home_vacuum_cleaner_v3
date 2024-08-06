@@ -17,7 +17,7 @@ class AlgorithmRegistrar {
     public:
         AlgorithmFactoryPair(const std::string& name, AlgorithmFactory algorithmFactory)
             : name_(name), algorithmFactory_(std::move(algorithmFactory)) {}
-        
+
         // NOTE: API is guaranteed, actual implementation may change
         const std::string& name() const { return name_; }
         std::unique_ptr<AbstractAlgorithm> create() const { return algorithmFactory_(); }
@@ -32,7 +32,7 @@ public:
     void registerAlgorithm(const std::string& name, AlgorithmFactory algorithmFactory) {
         algorithms.emplace_back(name, std::move(algorithmFactory));
     }
-    
+
     auto begin() const { return algorithms.begin(); }
     auto end() const { return algorithms.end(); }
     std::size_t count() const { return algorithms.size(); }

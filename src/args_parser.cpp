@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include "args_parser.h"
-#include "logger.h"
+#include "common/logger.h"
 
 ArgsParseResults ArgsParser::parse(int argc, char* argv[]) const {
     using string = std::string;
@@ -34,7 +34,7 @@ ArgsParseResults ArgsParser::extractPaths(const std::string& input1, const std::
     } else if (input2.find(algoPrefix) == 0) {
         algoPath = input2.substr(algoPrefix.size());
     }
-    logger.log(INFO, std::format("houses path: {}", housePath), FILE_LOC);
-    logger.log(INFO, std::format("algorithms path: {}", algoPath), FILE_LOC);
+    logger.log(INFO, std::format("houses folder: {}", housePath), FILE_LOC);
+    logger.log(INFO, std::format("algorithms folder: {}", algoPath), FILE_LOC);
     return ArgsParseResults{housePath, algoPath};
 }
