@@ -9,7 +9,7 @@
 int main(int argc, char* argv[]) {
     ArgsParser parser;
     auto args = parser.parse(argc, argv);
-    SimulationsManager simulations_manager(args.houses_path);
+    SimulationsManager simulations_manager(args.houses_path, args.algos_path);
     simulations_manager.runAllSimulations();
     return EXIT_SUCCESS;
 }
