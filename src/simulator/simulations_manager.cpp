@@ -5,8 +5,9 @@
 #include <fstream>
 #include <sstream>
 
-SimulationsManager::SimulationsManager(const std::string& houses_dir) {
+SimulationsManager::SimulationsManager(const std::string& houses_dir, const std::string& algo_dir) {
     loadHouses(houses_dir);
+    loadAlgorithmLibs(algo_dir);
     auto number_of_algos = AlgorithmRegistrar::getAlgorithmRegistrar().count();
     // fill scores with zeros
     scores.resize(number_of_algos);
@@ -50,6 +51,37 @@ void SimulationsManager::loadHouses(const std::string& houses_dir) {
     logger.log(INFO, std::format("found total of {} house files in relevant dir", houses_files.size()), FILE_LOC);
 }
 
+void SimulationsManager::loadAlgorithmLibs(const std::string& algorithms_dir) {
+    logger.log(INFO, std::format("Loading all .so files from folder: {}", algorithms_dir), FILE_LOC);
+
+    for (const auto& entry : std::filesystem::directory_iterator(algorithms_dir)) {
+        auto path = entry.path();
+        if (path.extension() == ".so") {
+            logger.log(INFO, std::format("Loading algorithm file: {}", path.filename().string()), FILE_LOC);
+
+            void* handle = dlopen(path.c_str(), RTLD_LAZY);
+            if (!handle) {
+                logger.log(WARNING, std::string("Failed to load algorithm: ") + path.string(), FILE_LOC);
+                continue;
+            } else {
+                library_handles.push_back(handle);
+            }
+        } else {
+            logger.log(INFO, std::format("Non so file: {}", path.filename().string()), FILE_LOC);
+        }
+    }
+    logger.log(INFO, std::format("Loaded {} algorithm libraries", library_handles.size()), FILE_LOC);
+}
+
+void SimulationsManager::unloadAlgorithmLibs() {
+    for (auto& handle : library_handles) {
+        if (handle) {
+            dlclose(handle);
+        }
+    }
+    library_handles.clear();
+    logger.log(INFO, "Unloaded all algorithm libraries", FILE_LOC);
+}
 
 
 void SimulationsManager::writeScoresToCSV() const {
@@ -89,4 +121,9 @@ void SimulationsManager::writeScoresToCSV() const {
 
     file.close();
     logger.log(INFO, "Scores written to " + csv_path, FILE_LOC);
+}
+
+SimulationsManager::~SimulationsManager() {
+    AlgorithmRegistrar::getAlgorithmRegistrar().clear();
+    unloadAlgorithmLibs();
 }
