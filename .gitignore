@@ -37,3 +37,6 @@ bin/*
 
 #logs
 vacuum_cleaner.log
+
+# vscode
+.vscode/settings.json
