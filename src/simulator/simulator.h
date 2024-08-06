@@ -26,6 +26,7 @@ public:
     void enableVisualization();
     const Path& getPath() const;
     size_t getHistoryLength() const;
+    static void disableOutputWriting();
 
 private:
 
@@ -44,6 +45,7 @@ private:
     bool enable_live_visualization;
     std::string house_file;
     std::string algo_name;
+    static bool write_output;
 
     void setBatterySize(const size_t battery_size);
     void setCurrestBattery();

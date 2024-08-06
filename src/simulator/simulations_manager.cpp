@@ -5,7 +5,7 @@
 #include <fstream>
 #include <sstream>
 
-SimulationsManager::SimulationsManager(const std::string& houses_dir, const std::string& algo_dir) {
+SimulationsManager::SimulationsManager(const std::string& houses_dir, const std::string& algo_dir, bool summary_only) {
     loadHouses(houses_dir);
     loadAlgorithmLibs(algo_dir);
     auto number_of_algos = AlgorithmRegistrar::getAlgorithmRegistrar().count();
@@ -13,6 +13,9 @@ SimulationsManager::SimulationsManager(const std::string& houses_dir, const std:
     scores.resize(number_of_algos);
     for (size_t i = 0; i < number_of_algos; i++) {
         scores[i].resize(houses_files.size(), 0);
+    }
+    if (summary_only) {
+        Simulator::disableOutputWriting();
     }
 }
 
