@@ -4,7 +4,7 @@
 #include <vector>
 #include "house.h"
 #include <string>
-#include "skelaton/enums.h"
+#include "common/enums.h"
 
 class Path {
 public:
