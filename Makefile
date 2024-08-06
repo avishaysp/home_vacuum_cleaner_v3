@@ -25,7 +25,13 @@ ALGO_LIBS = $(patsubst $(ALGODIR)/%.cpp, $(ALGO_BUILDDIR)/%.so, $(ALGO_SRCS))
 EXEC = $(BINDIR)/myrobot
 
 # Default target
-all: $(EXEC) $(ALGO_LIBS)
+all: algo simulator
+
+# Build only the algorithms
+algo: $(ALGO_LIBS)
+
+# Build the rest of the project
+simulator: $(EXEC)
 
 # Link object files to create executable
 $(EXEC): $(OBJS)
@@ -47,4 +53,4 @@ clean:
 	rm -rf $(BUILDDIR) $(BINDIR)
 
 # Phony targets
-.PHONY: all clean
+.PHONY: all clean algo simulator
