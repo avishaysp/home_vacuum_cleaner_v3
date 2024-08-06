@@ -107,7 +107,7 @@ FileReader::file_reader_output FileReader::readFile() const {
     std::ifstream file(file_path);
 
     if (!file.is_open()) {
-        logger.log(FATAL, "Failed to open the file: " + file_path, FILE_LOC);
+        logger.log(FATAL, std::format("Failed to open the file: {}. error: {}", file_path, std::strerror(errno)), FILE_LOC);
     }
 
     std::string line;

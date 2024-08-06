@@ -15,17 +15,19 @@ Simulator::Simulator()
       algo(nullptr),
       delta_battery(0),
       enable_live_visualization(false),
-      input_file("")
+      house_file(""),
+      algo_name("")
       {}
 
 void Simulator::readHouseFile(const std::string input_file_path) {
-    input_file = input_file_path;
+    house_file = input_file_path;
     FileReader fr(input_file_path);
     FileReader::file_reader_output args = fr.readFile();
     setProperties(args.max_num_of_steps, args.max_battery_steps, args.house_map);
 }
 
-void Simulator::writeToOutputFile(Status status, std::string output_file) {
+void Simulator::writeToOutputFile(Status status) {
+    std::string output_file = outputFileName();
     FileWriter fw(output_file);
     fw.writeNumberOfSteps(history_path);
     fw.writeDirt(house->calcTotalDirt());
@@ -69,12 +71,13 @@ void Simulator::enableVisualization() {
     enable_live_visualization = true;
 }
 
-void Simulator::setAlgorithm(std::unique_ptr<AbstractAlgorithm>& alg) {
+void Simulator::setAlgorithm(std::unique_ptr<AbstractAlgorithm>& alg, std::string algo_name) {
     alg->setWallsSensor(walls_sensor);
     alg->setDirtSensor(dirt_sensor);
     alg->setBatteryMeter(battery_meter);
     alg->setMaxSteps(max_steps);
     algo = std::move(alg);
+    this->algo_name = algo_name;
 }
 
 void Simulator::setProperties(const size_t max_num_of_steps, const size_t max_battery_steps,
@@ -103,15 +106,19 @@ size_t Simulator::getHistoryLength() const {
     return history_path.getLength();
 }
 
-std::string Simulator::addOutputPrefixToFilename(const std::string& path) const {
-    std::size_t lastSlashPos = path.find_last_of('/');
+std::string Simulator::outputFileName() const {
+    std::size_t lastSlashPos = house_file.find_last_of('/');
 
-    std::string directory = (lastSlashPos == std::string::npos) ? "" : path.substr(0, lastSlashPos + 1);
-    std::string filename = (lastSlashPos == std::string::npos) ? path : path.substr(lastSlashPos + 1);
+    std::string directory = (lastSlashPos == std::string::npos) ? "" : house_file.substr(0, lastSlashPos + 1);
+    std::string filename = (lastSlashPos == std::string::npos) ? house_file : house_file.substr(lastSlashPos + 1);
+    std::size_t lastDotPos = filename.find_last_of('.');
+    if (lastDotPos != std::string::npos) {
+        filename = filename.substr(0, lastDotPos);
+    }
 
-    std::string newFilename = "output_" + filename;
+    std::string output_file = std::format("{}-{}.txt", filename, algo_name);
 
-    return directory + newFilename;
+    return directory + output_file;
 }
 
 void Simulator::run() {
@@ -170,9 +177,8 @@ void Simulator::run() {
     }
 
     logger.log(INFO, "Prepering output file", FILE_LOC);
-    std::string output_file = addOutputPrefixToFilename(input_file);
-    logger.log(INFO, std::format("input file: {}, output file: {}", input_file, output_file), FILE_LOC);
-    writeToOutputFile(final_status, output_file);
+    std::string output_file = outputFileName();
+    writeToOutputFile(final_status);
 }
 
 void Simulator::updateDirtLevel() {

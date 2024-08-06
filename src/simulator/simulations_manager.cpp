@@ -12,13 +12,13 @@ SimulationsManager::SimulationsManager(const std::string& houses_dir) {
 void SimulationsManager::runAllSimulations() {
     logger.log(INFO, "running all combinations", FILE_LOC);
     auto& registrar = AlgorithmRegistrar::getAlgorithmRegistrar();
-    logger.log(INFO, std::format("Found {} algoritms registered", registrar.count()), FILE_LOC);
+    logger.log(INFO, std::format("found {} algoritms registered", registrar.count()), FILE_LOC);
 
     for (const auto& algo : registrar) {
         for (const auto& house_file : houses_files) {
             auto algorithm = algo.create();
             Simulator simulator;
-            simulator.setAlgorithm(algorithm);
+            simulator.setAlgorithm(algorithm, algo.name());
             simulator.readHouseFile(house_file);
             simulator.run();
             std::string output_file = "output_" + house_file + "_" + algo.name() + ".txt";
@@ -31,10 +31,11 @@ void SimulationsManager::runAllSimulations() {
 void SimulationsManager::loadHouses(const std::string& houses_dir) {
 
     for (const auto& entry : std::filesystem::directory_iterator(houses_dir)) {
-        if (entry.path().extension() == ".house") {
-            std::string file_name = entry.path().filename();
-            logger.log(INFO, std::format("found house file: {}", file_name), FILE_LOC);
-            houses_files.push_back(file_name);
+        auto path = entry.path();
+        if (path.extension() == ".house") {
+            logger.log(INFO, std::format("found house file: {}", path.filename().string()), FILE_LOC);
+            houses_files.push_back(path);
         }
     }
+    logger.log(INFO, std::format("found total of {} house files in relevant dir", houses_files.size()), FILE_LOC);
 }

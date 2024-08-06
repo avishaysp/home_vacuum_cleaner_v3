@@ -20,13 +20,9 @@ public:
     Simulator();
 
     void readHouseFile(const std::string input_file_path);
-
-    void setAlgorithm(std::unique_ptr<AbstractAlgorithm>& alg);
-
+    void setAlgorithm(std::unique_ptr<AbstractAlgorithm>& alg, std::string algo_name);
     void run();
-
     void enableVisualization();
-
     const Path& getPath() const;
     size_t getHistoryLength() const;
 
@@ -44,7 +40,8 @@ private:
     std::unique_ptr<AbstractAlgorithm> algo;
     size_t delta_battery;
     bool enable_live_visualization;
-    std::string input_file;
+    std::string house_file;
+    std::string algo_name;
 
     void setBatterySize(const size_t battery_size);
     void setCurrestBattery();
@@ -61,7 +58,7 @@ private:
     void addToHistory(Step step);
     void updateDirtLevel();
 
-    void writeToOutputFile(Status status, std::string output_file);
-    std::string addOutputPrefixToFilename(const std::string& path) const;
+    void writeToOutputFile(Status status);
+    std::string outputFileName() const;
 
 };
