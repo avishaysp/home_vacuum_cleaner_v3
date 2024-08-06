@@ -1,6 +1,7 @@
 #include "simulator.h"
 #include "live_simulator.h"
 
+bool Simulator::write_output = true;
 
 Simulator::Simulator() :
     score(0),
@@ -25,6 +26,10 @@ void Simulator::readHouseFile(const std::string input_file_path) {
     FileReader fr(input_file_path);
     FileReader::file_reader_output args = fr.readFile();
     setProperties(args.max_num_of_steps, args.max_battery_steps, args.house_map);
+}
+
+void Simulator::disableOutputWriting() {
+    write_output = false;
 }
 
 void Simulator::writeToOutputFile(Status status) {
@@ -176,10 +181,11 @@ void Simulator::run() {
         final_status = Status::FINISH;
         addToHistory(Step::Finish);
     }
-
-    logger.log(INFO, "Prepering output file", FILE_LOC);
-    std::string output_file = outputFileName();
-    writeToOutputFile(final_status);
+    if (write_output) {
+        logger.log(INFO, "Prepering output file", FILE_LOC);
+        std::string output_file = outputFileName();
+        writeToOutputFile(final_status);
+    }
 }
 
 size_t Simulator::getScore() const {

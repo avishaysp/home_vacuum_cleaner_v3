@@ -5,36 +5,34 @@
 
 ArgsParseResults ArgsParser::parse(int argc, char* argv[]) const {
     using string = std::string;
-    if (argc != 3) {
-        logger.log(FATAL, std::format("Expected 2 arguments for the program got {}", argc - 1), FILE_LOC);
-    }
-    string arg1 = string(argv[1]);
-    string arg2 = string(argv[2]);
-
-    return extractPaths(arg1, arg2);
-}
-
-ArgsParseResults ArgsParser::extractPaths(const std::string& input1, const std::string& input2) const {
-    std::string housePath;
-    std::string algoPath;
-
-    const std::string housePrefix = "-house_path=";
-    const std::string algoPrefix = "-algo_path=";
-
-    // parse input1
-    if (input1.find(housePrefix) == 0) {
-        housePath = input1.substr(housePrefix.size());
-    } else if (input1.find(algoPrefix) == 0) {
-        algoPath = input1.substr(algoPrefix.size());
+    if (argc < 1 || argc > 4) {
+        logger.log(FATAL, std::format("Expected 0 to 3 arguments for the program, got {}", argc - 1), FILE_LOC);
     }
 
-    // parse input2
-    if (input2.find(housePrefix) == 0) {
-        housePath = input2.substr(housePrefix.size());
-    } else if (input2.find(algoPrefix) == 0) {
-        algoPath = input2.substr(algoPrefix.size());
+    string house_path = "./";
+    string algo_path = "./";
+    bool summary_only = false;
+
+    const string house_prefix = "-house_path=";
+    const string algo_prefix = "-algo_path=";
+    const string summary_flag = "-summary_only";
+
+    for (int i = 1; i < argc; ++i) {
+        string arg = string(argv[i]);
+        if (arg.starts_with(house_prefix)) {
+            house_path = arg.substr(house_prefix.size());
+        } else if (arg.starts_with(algo_prefix)) {
+            algo_path = arg.substr(algo_prefix.size());
+        } else if (arg == summary_flag) {
+            summary_only = true;
+        } else {
+            logger.log(FATAL, std::format("Unknown argument: {}", arg), FILE_LOC);
+        }
     }
-    logger.log(INFO, std::format("houses folder: {}", housePath), FILE_LOC);
-    logger.log(INFO, std::format("algorithms folder: {}", algoPath), FILE_LOC);
-    return ArgsParseResults{housePath, algoPath};
+
+    logger.log(INFO, std::format("houses folder: {}", house_path), FILE_LOC);
+    logger.log(INFO, std::format("algorithms folder: {}", algo_path), FILE_LOC);
+    logger.log(INFO, std::format("summary only: {}", summary_only ? "true" : "false"), FILE_LOC);
+
+    return ArgsParseResults{house_path, algo_path, summary_only};
 }

@@ -12,7 +12,7 @@
 
 class SimulationsManager {
 public:
-    SimulationsManager(const std::string& houses_dir, const std::string& algo_dir);
+    SimulationsManager(const std::string& houses_dir, const std::string& algo_dir, bool summary_only);
     ~SimulationsManager();
     SimulationsManager(const SimulationsManager&) = delete;
     SimulationsManager& operator=(const SimulationsManager&) = delete;

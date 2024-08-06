@@ -4,6 +4,7 @@
 struct ArgsParseResults {
     std::string houses_path;
     std::string algos_path;
+    bool summary_only;
 };
 
 class ArgsParser {
