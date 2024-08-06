@@ -7,9 +7,9 @@
 #include <string>
 #include <vector>
 #include <sstream>
-#include "house.h"
+#include "../common/house.h"
 #include "Path.h"
-#include "logger.h"
+#include "../common/logger.h"
 #include "status.h"
 
 

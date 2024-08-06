@@ -2,9 +2,9 @@
 #pragma once
 
 #include <vector>
-#include "house.h"
+#include "../common/house.h"
 #include <string>
-#include "common/enums.h"
+#include "../common/enums.h"
 
 class Path {
 public:

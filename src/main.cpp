@@ -1,14 +1,15 @@
 // main.cpp
-#include "logger.h"
-#include "io_handling.h"
+#include "common/logger.h"
 // #include "simulator.h"
 // #include "speedom_algorithm.h"
 #include "args_parser.h"
+#include "simulator/simulations_manager.h"
 
 
 int main(int argc, char* argv[]) {
     ArgsParser parser;
     auto args = parser.parse(argc, argv);
-    std::cout << args.algos_path << " " << args.houses_path <<std::endl;
+    SimulationsManager simulations_manager(args.houses_path);
+    simulations_manager.runAllSimulations();
     return EXIT_SUCCESS;
 }
