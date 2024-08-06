@@ -16,7 +16,9 @@ public:
     void runAllSimulations();
 
 private:
-    void loadHouses(const std::string& houses_dir);
     std::vector<std::string> houses_files;
+    std::vector<std::vector<size_t>> scores;
+    void loadHouses(const std::string& houses_dir);
+    void writeScoresToCSV() const;
 };
 

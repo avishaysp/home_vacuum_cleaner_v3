@@ -2,22 +2,23 @@
 #include "live_simulator.h"
 
 
-Simulator::Simulator()
-    : battery_size(0),
-      current_battery(0),
-      max_steps(0),
-      house(nullptr),
-      current_location(),
-      history_path(),
-      walls_sensor(current_location),
-      battery_meter(current_battery),
-      dirt_sensor(current_location),
-      algo(nullptr),
-      delta_battery(0),
-      enable_live_visualization(false),
-      house_file(""),
-      algo_name("")
-      {}
+Simulator::Simulator() :
+    score(0),
+    battery_size(0),
+    current_battery(0),
+    max_steps(0),
+    house(nullptr),
+    current_location(),
+    history_path(),
+    walls_sensor(current_location),
+    battery_meter(current_battery),
+    dirt_sensor(current_location),
+    algo(nullptr),
+    delta_battery(0),
+    enable_live_visualization(false),
+    house_file(""),
+    algo_name("")
+    {}
 
 void Simulator::readHouseFile(const std::string input_file_path) {
     house_file = input_file_path;
@@ -179,6 +180,10 @@ void Simulator::run() {
     logger.log(INFO, "Prepering output file", FILE_LOC);
     std::string output_file = outputFileName();
     writeToOutputFile(final_status);
+}
+
+size_t Simulator::getScore() const {
+    return score;
 }
 
 void Simulator::updateDirtLevel() {

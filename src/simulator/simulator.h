@@ -22,12 +22,14 @@ public:
     void readHouseFile(const std::string input_file_path);
     void setAlgorithm(std::unique_ptr<AbstractAlgorithm>& alg, std::string algo_name);
     void run();
+    size_t getScore() const;
     void enableVisualization();
     const Path& getPath() const;
     size_t getHistoryLength() const;
 
 private:
 
+    size_t score;
     size_t battery_size;
     size_t current_battery;
     size_t max_steps;
