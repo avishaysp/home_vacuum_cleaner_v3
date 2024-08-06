@@ -33,7 +33,7 @@ public:
     }
 
     std::string toString() const {
-        return "Location(" + std::to_string(row) + ", " + std::to_string(col) + ")";
+        return "(" + std::to_string(row) + ", " + std::to_string(col) + ")";
     }
 
     void print() const {
