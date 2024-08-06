@@ -124,7 +124,7 @@ std::string Simulator::outputFileName() const {
 void Simulator::run() {
     Step step;
     Status final_status = Status::WORKING;
-    logger.log(INFO, "Start cleaning house", FILE_LOC);
+    logger.log(INFO, std::format("running algorithm '{}' on house {}", algo_name, house_file), FILE_LOC);
     for (size_t i = 0; i < max_steps; ++i) {
 
         if ((current_location != house->getDockingStation()) && current_battery <= 0) {

@@ -21,9 +21,6 @@ void SimulationsManager::runAllSimulations() {
             simulator.setAlgorithm(algorithm, algo.name());
             simulator.readHouseFile(house_file);
             simulator.run();
-            std::string output_file = "output_" + house_file + "_" + algo.name() + ".txt";
-            std::cout << output_file << std::endl;
-            // write output
         }
     }
 }
