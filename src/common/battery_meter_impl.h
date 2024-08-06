@@ -6,11 +6,11 @@
 
 
 
-class BatteryMeterImp : public BatteryMeter {
+class BatteryMeterImpl : public BatteryMeter {
     size_t& battery_level;
 
 public:
-    BatteryMeterImp(size_t& battery_level);
+    BatteryMeterImpl(size_t& battery_level);
 	std::size_t getBatteryState() const override;
 };
 

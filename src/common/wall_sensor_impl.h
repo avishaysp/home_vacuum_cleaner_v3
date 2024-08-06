@@ -7,14 +7,14 @@
 #include "../house.h"
 
 
-class WallsSensorImp: public WallsSensor {
+class WallSensorImpl: public WallsSensor {
     std::shared_ptr<House> house;
     const Location& curr_location;
 
 public:
-    WallsSensorImp(const Location& curr_location);
+    WallSensorImpl(const Location& curr_location);
 
-    WallsSensorImp(const std::shared_ptr<House> house, const Location& curr_location);
+    WallSensorImpl(const std::shared_ptr<House> house, const Location& curr_location);
 
     void setHouse(const std::shared_ptr<House> house);
 

@@ -38,9 +38,9 @@
 //     std::shared_ptr<House> house;
 //     Location current_location;
 //     Path history_path; // verify if needed
-//     WallsSensorImp walls_sensor;
-//     const BatteryMeterImp battery_meter;
-//     DirtSensorImp dirt_sensor;
+//     WallSensorImpl walls_sensor;
+//     const BatteryMeterImpl battery_meter;
+//     DirtSensorImpl dirt_sensor;
 //     std::shared_ptr<SpeedomAlgorithm> algo;
 //     size_t delta_battery;
 //     bool enable_live_visualization;
