@@ -1,0 +1,8 @@
+1. stam house
+MaxSteps = 200
+MaxBattery=30
+Rows = 4
+Cols =10
+WWWW
+W D
+W 123456789
