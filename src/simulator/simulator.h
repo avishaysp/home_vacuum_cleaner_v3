@@ -32,7 +32,6 @@ public:
 
 private:
 
-    size_t score;
     size_t battery_size;
     size_t current_battery;
     size_t max_steps;

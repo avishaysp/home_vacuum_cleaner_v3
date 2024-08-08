@@ -6,7 +6,6 @@
 bool Simulator::write_output = true;
 
 Simulator::Simulator() :
-    score(0),
     battery_size(0),
     current_battery(0),
     max_steps(0),
@@ -140,7 +139,7 @@ void Simulator::runWithTimeout() {
     for (size_t i = 0; i < max_steps; ++i) {
         auto current_time = std::chrono::steady_clock::now();
         auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time);
-        if (elapsed_time.count() > max_steps) {
+        if (size_t(elapsed_time.count()) > max_steps) {
             logger.log(WARNING, "Time limit exceeded, ending simulation early", FILE_LOC);
             curr_status = Status::TIMEOUT;
             break;
