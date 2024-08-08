@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <iostream>
-#include "logger.h"
+#include "../common/logger.h"
 #include "location.h"
 
 class House {
