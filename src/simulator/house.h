@@ -4,7 +4,7 @@
 #include <vector>
 #include <iostream>
 #include "../common/logger.h"
-#include "location.h"
+#include "../common/location.h"
 
 class House {
 
