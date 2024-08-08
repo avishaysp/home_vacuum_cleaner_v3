@@ -22,9 +22,7 @@ protected:
     };
 
     RandomInternalHouse internal_house;
-    InternalHouse& getInternalHouse() override { 
-        return internal_house; 
-        } 
+    InternalHouse& getInternalHouse() override { return internal_house;} 
 
 public:
 
