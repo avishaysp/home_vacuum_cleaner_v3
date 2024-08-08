@@ -2,7 +2,7 @@
 #include <string>
 #include <iostream>
 #include <algorithm>
-#include "../common/house.h"
+#include "house.h"
 #include "io_handling.h"
 #include "../common/AbstractAlgorithm.h"
 #include "../common/wall_sensor_impl.h"

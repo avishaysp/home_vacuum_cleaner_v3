@@ -2,7 +2,7 @@
 #pragma once
 
 #include <vector>
-#include "../common/house.h"
+#include "house.h"
 #include <string>
 #include "../common/enums.h"
 

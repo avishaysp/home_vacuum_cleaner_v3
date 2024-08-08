@@ -4,7 +4,7 @@
 #include "enums.h"
 #include "WallSensor.h"
 #include "../common/logger.h"
-#include "house.h"
+#include "../simulator/house.h"
 
 
 class WallSensorImpl: public WallsSensor {

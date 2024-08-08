@@ -3,7 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "../common/house.h"
+#include "house.h"
 #include "../common/enums.h"
 
 class LiveSimulator {
