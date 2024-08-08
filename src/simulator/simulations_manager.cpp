@@ -49,7 +49,7 @@ void SimulationsManager::runAllSimulations() {
             simulator.readHouseFile(houses_files[house_index]);
             simulator.runWithTimeout();
 
-            scores[algo_index][house_index] = simulator.getScore();
+            scores[algo_index][house_index] = simulator.calcScore();
         }
     };
 

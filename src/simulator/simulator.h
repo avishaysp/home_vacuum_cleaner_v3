@@ -24,7 +24,7 @@ public:
     void readHouseFile(const std::string input_file_path);
     void setAlgorithm(std::unique_ptr<AbstractAlgorithm>& alg, std::string algo_name);
     void runWithTimeout();
-    size_t getScore() const;
+    size_t calcScore() const;
     void enableVisualization();
     const Path& getPath() const;
     size_t getHistoryLength() const;
@@ -36,6 +36,7 @@ private:
     size_t battery_size;
     size_t current_battery;
     size_t max_steps;
+    size_t steps_cnt;
     std::shared_ptr<House> house;
     Location current_location;
     Path history_path; // verify if needed
@@ -48,7 +49,7 @@ private:
     std::string house_file;
     std::string algo_name;
     size_t initial_dirt_level;
-    Status final_status;
+    Status curr_status;
     static bool write_output;
 
     void setBatterySize(const size_t battery_size);

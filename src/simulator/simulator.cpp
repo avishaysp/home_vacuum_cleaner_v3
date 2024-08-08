@@ -10,6 +10,7 @@ Simulator::Simulator() :
     battery_size(0),
     current_battery(0),
     max_steps(0),
+    steps_cnt(0),
     house(nullptr),
     current_location(),
     history_path(),
@@ -22,7 +23,7 @@ Simulator::Simulator() :
     house_file(""),
     algo_name(""),
     initial_dirt_level(0),
-    final_status(Status::WORKING)
+    curr_status(Status::WORKING)
     {}
 
 void Simulator::readHouseFile(const std::string input_file_path) {
@@ -141,17 +142,18 @@ void Simulator::runWithTimeout() {
         auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time);
         if (elapsed_time.count() > max_steps) {
             logger.log(WARNING, "Time limit exceeded, ending simulation early", FILE_LOC);
-            final_status = Status::TIMEOUT;
+            curr_status = Status::TIMEOUT;
             break;
         }
 
         if ((current_location != house->getDockingStation()) && current_battery <= 0) {
             logger.log(WARNING, "Battery level is empty, Can not continue cleaning", FILE_LOC);
-            final_status = Status::DEAD;
+            curr_status = Status::DEAD;
             break;
         }
 
         step = algo->nextStep();
+        if (step != Step::Finish) { steps_cnt++; }
 
         if ((step == Step::Stay) && (current_location == house->getDockingStation())) {
             if (current_battery == battery_size) {
@@ -177,7 +179,7 @@ void Simulator::runWithTimeout() {
             if (enable_live_visualization) {
                 live_simulator.simulate(*house, current_location, step, false, (max_steps - 1) - i, current_battery / 100);
             }
-            final_status = Status::FINISH;
+            curr_status = Status::FINISH;
             addToHistory(step);
             break;
         }
@@ -188,19 +190,31 @@ void Simulator::runWithTimeout() {
         }
     }
 
-    if (final_status != Status::TIMEOUT && final_status != Status::FINISH && current_location == house->getDockingStation() && algo->nextStep() == Step::Finish) {
-        final_status = Status::FINISH;
+    if (curr_status != Status::TIMEOUT && curr_status != Status::FINISH && current_location == house->getDockingStation() && algo->nextStep() == Step::Finish) {
+        curr_status = Status::FINISH;
         addToHistory(Step::Finish);
     }
     if (write_output) {
         logger.log(INFO, "Prepering output file", FILE_LOC);
         std::string output_file = outputFileName();
-        writeToOutputFile(final_status);
+        writeToOutputFile(curr_status);
     }
 }
 
-size_t Simulator::getScore() const {
-    return score;
+size_t Simulator::calcScore() const {
+    size_t dirt_left = house->calcTotalDirt();
+    bool robot_in_dock = current_location == house->getDockingStation();
+
+    if (curr_status == Status::TIMEOUT) {
+        return max_steps * 2 + initial_dirt_level * 300 + 2000;
+    }
+    if (curr_status == Status::DEAD) {
+        return max_steps + dirt_left * 300 + 2000;
+    }
+    if (curr_status == Status::FINISH && !robot_in_dock) {
+        return max_steps + dirt_left * 300 + 3000;
+    }
+    return steps_cnt + dirt_left * 300 + (robot_in_dock ? 0 : 1000);
 }
 
 void Simulator::updateDirtLevel() {
