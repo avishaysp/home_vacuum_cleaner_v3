@@ -23,9 +23,9 @@ void Logger::log(LogLevel level, const std::string& message, const std::string& 
 
     if (logStream.is_open()) {
         std::time_t now = std::time(nullptr);
-        logStream << "[" << std::put_time(std::localtime(&now), "%Y-%m-%d %H:%M:%S") << "] "
-                  << filename << ":" << line << " "
-                  << getLogLevelString(level) << ": " << message << std::endl;
+        logStream   << "[" << std::put_time(std::localtime(&now), "%Y-%m-%d %H:%M:%S") << "] "
+                    << getLogLevelString(level) << ": "
+                    << filename << ":" << line << " " << message << std::endl;
     } else {
         std::cerr << "Unable to write to log file: " << logFile << std::endl;
     }
