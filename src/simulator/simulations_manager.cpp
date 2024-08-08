@@ -1,4 +1,4 @@
-// src/simulations_manager.cpp
+// src/simulator/simulations_manager.cpp
 
 #include "simulations_manager.h"
 #include <iostream>
@@ -20,23 +20,54 @@ SimulationsManager::SimulationsManager(const std::string& houses_dir, const std:
 }
 
 void SimulationsManager::runAllSimulations() {
-    logger.log(INFO, "running all combinations", FILE_LOC);
-    auto& registrar = AlgorithmRegistrar::getAlgorithmRegistrar();
-    logger.log(INFO, std::format("found {} algoritms registered", registrar.count()), FILE_LOC);
+    logger.log(INFO, "Running all combinations concurrently", FILE_LOC);
 
-    size_t algo_index = 0;
-    for (const auto& algo : registrar) {
-        size_t house_index = 0;
-        for (const auto& house_file : houses_files) {
-            auto algorithm = algo.create();
+    auto& registrar = AlgorithmRegistrar::getAlgorithmRegistrar();
+    size_t num_of_algos = registrar.count();
+    size_t num_of_houses = houses_files.size();
+    size_t total_tasks = num_of_houses * num_of_algos;
+
+    std::atomic<size_t> next_task(0);
+
+    // for each thread, continue until task_index >= total_tasks
+    auto job = [&]() {
+        while (true) {
+            size_t task_index = next_task.fetch_add(1);
+            if (task_index >= total_tasks) {
+                break;
+            }
+
+            size_t algo_index = task_index / num_of_houses;
+            size_t house_index = task_index % num_of_houses;
+
+            auto algo_iter = registrar.begin() + algo_index;
+            auto algorithm = algo_iter->create();
+            std::string algo_name = algo_iter->name();
+
             Simulator simulator;
-            simulator.setAlgorithm(algorithm, algo.name());
-            simulator.readHouseFile(house_file);
+            simulator.setAlgorithm(algorithm, algo_name);
+            simulator.readHouseFile(houses_files[house_index]);
             simulator.run();
+
             scores[algo_index][house_index] = simulator.getScore();
-            house_index++;
         }
-        algo_index++;
+    };
+
+    // Launch threads
+    auto hw_limit = size_t(std::thread::hardware_concurrency());
+    logger.log(INFO, std::format("hardware support up to {} threads", hw_limit), FILE_LOC);
+    size_t max_threads_count = std::min({size_t(10), total_tasks, hw_limit});
+    logger.log(INFO, std::format("launching {} threads", max_threads_count), FILE_LOC);
+    std::vector<std::thread> threads;
+    for (size_t i = 0; i < max_threads_count; i++) {
+        logger.log(INFO, std::format("launching thread {}", i + 1), FILE_LOC);
+        threads.emplace_back(job);
+    }
+
+    for (auto& tread : threads) {
+        if (tread.joinable()) {
+            tread.join();
+        }
     }
     writeScoresToCSV();
 }

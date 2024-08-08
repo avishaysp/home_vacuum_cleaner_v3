@@ -1,4 +1,4 @@
-// src/simulations_manager.h
+// src/simulator/simulations_manager.h
 #pragma once
 
 #include <string>
@@ -6,6 +6,8 @@
 #include <memory>
 #include <filesystem>
 #include <dlfcn.h>
+#include <thread>
+#include <atomic>
 #include "simulator.h"
 #include "../common/AbstractAlgorithm.h"
 #include "../common/AlgorithmRegistrar.h"
