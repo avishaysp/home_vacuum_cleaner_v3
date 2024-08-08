@@ -134,7 +134,6 @@ public:
     void setWallsSensor(const WallsSensor&) override;
     void setDirtSensor(const DirtSensor&) override;
     void setBatteryMeter(const BatteryMeter&) override;
-    void setBatterySize(size_t battery_size);
     Step nextStep() override;
 
 };

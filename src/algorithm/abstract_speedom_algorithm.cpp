@@ -28,9 +28,6 @@ void AbstractSpeedomAlgorithm::setBatteryMeter(const BatteryMeter& batteryMeter)
     battery_meter = &batteryMeter;
 }
 
-void AbstractSpeedomAlgorithm::setBatterySize(size_t battery_size){
-    this->battery_size = battery_size;
-}
 
 Step AbstractSpeedomAlgorithm::updateCurrentLocAndGetNextStep(InternalHouse::LocationType target) {
     auto& house = getInternalHouse();
