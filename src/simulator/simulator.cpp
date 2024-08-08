@@ -20,7 +20,9 @@ Simulator::Simulator() :
     delta_battery(0),
     enable_live_visualization(false),
     house_file(""),
-    algo_name("")
+    algo_name(""),
+    initial_dirt_level(0),
+    final_status(Status::WORKING)
     {}
 
 void Simulator::readHouseFile(const std::string input_file_path) {
@@ -99,7 +101,7 @@ void Simulator::setProperties(const size_t max_num_of_steps, const size_t max_ba
     setWallsSensor();
     setDirtSensor();
     delta_battery = battery_size / 20;
-
+    initial_dirt_level = house->calcTotalDirt();
 }
 
 void Simulator::addToHistory(Step step) {
@@ -129,16 +131,23 @@ std::string Simulator::outputFileName() const {
     return directory + output_file;
 }
 
-void Simulator::run() {
+void Simulator::runWithTimeout() {
+    auto start_time = std::chrono::steady_clock::now();
     Step step;
-    Status final_status = Status::WORKING;
-    logger.log(INFO, std::format("running algorithm '{}' on house {}", algo_name, house_file), FILE_LOC);
+    logger.log(INFO, std::format("running algorithm '{}' on house {} with timeout of {} ms", algo_name, house_file, max_steps), FILE_LOC);
+
     for (size_t i = 0; i < max_steps; ++i) {
+        auto current_time = std::chrono::steady_clock::now();
+        auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time);
+        if (elapsed_time.count() > max_steps) {
+            logger.log(WARNING, "Time limit exceeded, ending simulation early", FILE_LOC);
+            final_status = Status::TIMEOUT;
+            break;
+        }
 
         if ((current_location != house->getDockingStation()) && current_battery <= 0) {
             logger.log(WARNING, "Battery level is empty, Can not continue cleaning", FILE_LOC);
             final_status = Status::DEAD;
-            addToHistory(step);
             break;
         }
 
@@ -179,7 +188,7 @@ void Simulator::run() {
         }
     }
 
-    if (final_status != Status::FINISH && current_location == house->getDockingStation() && algo->nextStep() == Step::Finish) {
+    if (final_status != Status::TIMEOUT && final_status != Status::FINISH && current_location == house->getDockingStation() && algo->nextStep() == Step::Finish) {
         final_status = Status::FINISH;
         addToHistory(Step::Finish);
     }

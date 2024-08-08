@@ -47,7 +47,7 @@ void SimulationsManager::runAllSimulations() {
             Simulator simulator;
             simulator.setAlgorithm(algorithm, algo_name);
             simulator.readHouseFile(houses_files[house_index]);
-            simulator.run();
+            simulator.runWithTimeout();
 
             scores[algo_index][house_index] = simulator.getScore();
         }
