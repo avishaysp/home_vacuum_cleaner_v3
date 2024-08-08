@@ -44,7 +44,6 @@ void House::setDockingStation(Location docking_loc) {
 }
 
 int House::calcTotalDirt() const {
-    logger.log(INFO, "calculating dirt", FILE_LOC);
     int sum = 0;
     for (size_t i = 0; i < rows; i++) {
         for (size_t j = 0; j < cols; j++) {
