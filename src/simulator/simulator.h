@@ -1,3 +1,5 @@
+// src/simulator/simulator.h
+
 #pragma once
 #include <string>
 #include <iostream>
