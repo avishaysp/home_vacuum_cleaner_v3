@@ -1,8 +1,5 @@
 // src/logger.cpp
 #include "logger.h"
-#include <ctime>
-#include <iomanip>
-#include <format>
 
 Logger& Logger::getInstance() {
     static Logger instance;
@@ -10,6 +7,7 @@ Logger& Logger::getInstance() {
 }
 
 void Logger::log(LogLevel level, const std::string& message, const std::string& file, int line) {
+    std::lock_guard<std::mutex> lock(mtx); 
     if (!logStream.is_open()) {
         openLogFile();
     }

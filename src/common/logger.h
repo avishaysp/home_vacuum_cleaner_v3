@@ -5,6 +5,9 @@
 #include <fstream>
 #include <string>
 #include <format>
+#include <ctime>
+#include <iomanip>
+#include <mutex>
 
 #define FILE_LOC __FILE__, __LINE__
 
@@ -29,6 +32,7 @@ private:
     std::ofstream logStream;
     std::string logFile;
     bool firstOpen;
+    std::mutex mtx; 
 
     void openLogFile();
     std::string getLogLevelString(LogLevel level);
