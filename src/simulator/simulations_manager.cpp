@@ -5,16 +5,18 @@
 #include <fstream>
 #include <sstream>
 
-SimulationsManager::SimulationsManager(const std::string& houses_dir, const std::string& algo_dir, bool summary_only) {
-    loadHouses(houses_dir);
-    loadAlgorithmLibs(algo_dir);
+SimulationsManager::SimulationsManager(int argc, char* argv[]) {
+    auto args = args_parser.parse(argc, argv);
+    loadHouses(args.houses_path);
+    loadAlgorithmLibs(args.algos_path);
+    user_num_of_threads = args.user_num_of_threads;
     auto number_of_algos = AlgorithmRegistrar::getAlgorithmRegistrar().count();
     // fill scores with zeros
     scores.resize(number_of_algos);
     for (size_t i = 0; i < number_of_algos; i++) {
         scores[i].resize(houses_files.size(), 0);
     }
-    if (summary_only) {
+    if (args.summary_only) {
         Simulator::disableOutputWriting();
     }
 }
@@ -56,7 +58,7 @@ void SimulationsManager::runAllSimulations() {
     // Launch threads
     auto hw_limit = size_t(std::thread::hardware_concurrency());
     logger.log(INFO, std::format("hardware support up to {} threads", hw_limit), FILE_LOC);
-    size_t max_threads_count = std::min({size_t(10), total_tasks, hw_limit});
+    size_t max_threads_count = std::min({user_num_of_threads, total_tasks, hw_limit});
     logger.log(INFO, std::format("launching {} threads", max_threads_count), FILE_LOC);
     std::vector<std::thread> threads;
     for (size_t i = 0; i < max_threads_count; i++) {
