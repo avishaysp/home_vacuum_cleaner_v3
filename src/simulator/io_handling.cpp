@@ -152,12 +152,12 @@ FileWriter::FileWriter(const std::string& file_path) : file_path(file_path) {
     file.close();
 }
 
-void FileWriter::writeNumberOfSteps(const Path& path) {
+void FileWriter::writeNumberOfSteps(int number_of_steps) {
     std::ofstream file(file_path, std::ios_base::app);
     if (!file.is_open()) {
         std::cout << "Could not open file for writing" << std::endl;
     }
-    file << "NumSteps:" << (path.getLength() - 1) << std::endl;
+    file << "NumSteps:" << number_of_steps << std::endl;
 
     file.close();
 }
@@ -189,6 +189,24 @@ void FileWriter::writeStatus(Status status) {
         break;
     }
     file << std::endl;
+    file.close();
+}
+
+void FileWriter::writeInDock(bool in_dock) {
+    std::ofstream file(file_path, std::ios_base::app);
+    if (!file.is_open()) {
+        std::cout << "Could not open file for writing" << std::endl;
+    }
+    file << "InDock:" << (in_dock ? "TRUE" : "FALSE") << std::endl;
+    file.close();
+}
+
+void FileWriter::writeScore(int score) {
+    std::ofstream file(file_path, std::ios_base::app);
+    if (!file.is_open()) {
+        std::cout << "Could not open file for writing" << std::endl;
+    }
+    file << "Score:" << score << std::endl;
     file.close();
 }
 

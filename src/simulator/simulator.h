@@ -1,8 +1,10 @@
+// src/simulator/simulator.h
+
 #pragma once
 #include <string>
 #include <iostream>
 #include <algorithm>
-#include "../common/house.h"
+#include "house.h"
 #include "io_handling.h"
 #include "../common/AbstractAlgorithm.h"
 #include "../common/wall_sensor_impl.h"
@@ -21,19 +23,20 @@ public:
 
     void readHouseFile(const std::string input_file_path);
     void setAlgorithm(std::unique_ptr<AbstractAlgorithm>& alg, std::string algo_name);
-    void run();
-    size_t getScore() const;
+    void runWithTimeout();
+    size_t calcScore() const;
     void enableVisualization();
     const Path& getPath() const;
     size_t getHistoryLength() const;
     static void disableOutputWriting();
+    std::string getHouseName() const;
 
 private:
 
-    size_t score;
     size_t battery_size;
     size_t current_battery;
     size_t max_steps;
+    size_t steps_cnt;
     std::shared_ptr<House> house;
     Location current_location;
     Path history_path; // verify if needed
@@ -45,6 +48,8 @@ private:
     bool enable_live_visualization;
     std::string house_file;
     std::string algo_name;
+    size_t initial_dirt_level;
+    Status curr_status;
     static bool write_output;
 
     void setBatterySize(const size_t battery_size);
@@ -64,5 +69,6 @@ private:
 
     void writeToOutputFile(Status status);
     std::string outputFileName() const;
+    std::string getDirectory() const;
 
 };

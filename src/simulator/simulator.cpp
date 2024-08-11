@@ -1,13 +1,15 @@
+// src/simulator/simulator.cpp
+
 #include "simulator.h"
 #include "live_simulator.h"
 
 bool Simulator::write_output = true;
 
 Simulator::Simulator() :
-    score(0),
     battery_size(0),
     current_battery(0),
     max_steps(0),
+    steps_cnt(0),
     house(nullptr),
     current_location(),
     history_path(),
@@ -18,7 +20,9 @@ Simulator::Simulator() :
     delta_battery(0),
     enable_live_visualization(false),
     house_file(""),
-    algo_name("")
+    algo_name(""),
+    initial_dirt_level(0),
+    curr_status(Status::WORKING)
     {}
 
 void Simulator::readHouseFile(const std::string input_file_path) {
@@ -35,9 +39,11 @@ void Simulator::disableOutputWriting() {
 void Simulator::writeToOutputFile(Status status) {
     std::string output_file = outputFileName();
     FileWriter fw(output_file);
-    fw.writeNumberOfSteps(history_path);
+    fw.writeNumberOfSteps(steps_cnt);
     fw.writeDirt(house->calcTotalDirt());
     fw.writeStatus(status);
+    fw.writeInDock(current_location == house->getDockingStation());
+    fw.writeScore(calcScore());
     fw.writePath(history_path);
 }
 
@@ -97,7 +103,7 @@ void Simulator::setProperties(const size_t max_num_of_steps, const size_t max_ba
     setWallsSensor();
     setDirtSensor();
     delta_battery = battery_size / 20;
-
+    initial_dirt_level = house->calcTotalDirt();
 }
 
 void Simulator::addToHistory(Step step) {
@@ -113,34 +119,52 @@ size_t Simulator::getHistoryLength() const {
 }
 
 std::string Simulator::outputFileName() const {
-    std::size_t lastSlashPos = house_file.find_last_of('/');
-
-    std::string directory = (lastSlashPos == std::string::npos) ? "" : house_file.substr(0, lastSlashPos + 1);
-    std::string filename = (lastSlashPos == std::string::npos) ? house_file : house_file.substr(lastSlashPos + 1);
-    std::size_t lastDotPos = filename.find_last_of('.');
-    if (lastDotPos != std::string::npos) {
-        filename = filename.substr(0, lastDotPos);
-    }
-
-    std::string output_file = std::format("{}-{}.txt", filename, algo_name);
+    std::string house_name = getHouseName();
+    auto directory = getDirectory();
+    std::string output_file = std::format("{}-{}.txt", house_name, algo_name);
 
     return directory + output_file;
 }
 
-void Simulator::run() {
+std::string Simulator::getHouseName() const {
+    std::size_t last_slash_pos = house_file.find_last_of('/');
+    auto house_name = house_file.substr(last_slash_pos + 1);
+    std::size_t last_dot_pos = house_name.find_last_of('.');
+    if (last_dot_pos != std::string::npos) {
+        house_name = house_name.substr(0, last_dot_pos);
+    }
+    return house_name;
+}
+
+std::string Simulator::getDirectory() const {
+    std::size_t last_slash_pos = house_file.find_last_of('/');
+
+    return (last_slash_pos == std::string::npos) ? "" : house_file.substr(0, last_slash_pos + 1);
+}
+
+void Simulator::runWithTimeout() {
+    auto start_time = std::chrono::steady_clock::now();
     Step step;
-    Status final_status = Status::WORKING;
-    logger.log(INFO, std::format("running algorithm '{}' on house {}", algo_name, house_file), FILE_LOC);
+    logger.log(INFO, std::format("running algorithm '{}' on house {} with timeout of {} ms", algo_name, house_file, max_steps), FILE_LOC);
+
     for (size_t i = 0; i < max_steps; ++i) {
+        auto current_time = std::chrono::steady_clock::now();
+        auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(current_time - start_time);
+        logger.log(INFO, std::format("elapsed time so far: {} us", elapsed_time.count()), FILE_LOC);
+        if (size_t(elapsed_time.count()) > 1000 * max_steps) {
+            logger.log(WARNING, "Time limit exceeded, ending simulation early", FILE_LOC);
+            curr_status = Status::TIMEOUT;
+            break;
+        }
 
         if ((current_location != house->getDockingStation()) && current_battery <= 0) {
             logger.log(WARNING, "Battery level is empty, Can not continue cleaning", FILE_LOC);
-            final_status = Status::DEAD;
-            addToHistory(step);
+            curr_status = Status::DEAD;
             break;
         }
 
         step = algo->nextStep();
+        if (step != Step::Finish) { steps_cnt++; }
 
         if ((step == Step::Stay) && (current_location == house->getDockingStation())) {
             if (current_battery == battery_size) {
@@ -166,7 +190,7 @@ void Simulator::run() {
             if (enable_live_visualization) {
                 live_simulator.simulate(*house, current_location, step, false, (max_steps - 1) - i, current_battery / 100);
             }
-            final_status = Status::FINISH;
+            curr_status = Status::FINISH;
             addToHistory(step);
             break;
         }
@@ -177,19 +201,31 @@ void Simulator::run() {
         }
     }
 
-    if (final_status != Status::FINISH && current_location == house->getDockingStation() && algo->nextStep() == Step::Finish) {
-        final_status = Status::FINISH;
+    if (curr_status != Status::TIMEOUT && curr_status != Status::FINISH && current_location == house->getDockingStation() && algo->nextStep() == Step::Finish) {
+        curr_status = Status::FINISH;
         addToHistory(Step::Finish);
     }
     if (write_output) {
         logger.log(INFO, "Prepering output file", FILE_LOC);
         std::string output_file = outputFileName();
-        writeToOutputFile(final_status);
+        writeToOutputFile(curr_status);
     }
 }
 
-size_t Simulator::getScore() const {
-    return score;
+size_t Simulator::calcScore() const {
+    size_t dirt_left = house->calcTotalDirt();
+    bool robot_in_dock = current_location == house->getDockingStation();
+
+    if (curr_status == Status::TIMEOUT) {
+        return max_steps * 2 + initial_dirt_level * 300 + 2000;
+    }
+    if (curr_status == Status::DEAD) {
+        return max_steps + dirt_left * 300 + 2000;
+    }
+    if (curr_status == Status::FINISH && !robot_in_dock) {
+        return max_steps + dirt_left * 300 + 3000;
+    }
+    return steps_cnt + dirt_left * 300 + (robot_in_dock ? 0 : 1000);
 }
 
 void Simulator::updateDirtLevel() {

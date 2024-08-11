@@ -3,7 +3,7 @@
 
 #include "DirtSensor.h"
 #include "logger.h"
-#include "house.h"
+#include "../simulator/house.h"
 
 
 class DirtSensorImpl: public DirtSensor {

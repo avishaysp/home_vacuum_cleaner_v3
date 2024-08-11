@@ -1,15 +1,12 @@
 // main.cpp
-#include "common/logger.h"
-// #include "simulator.h"
-// #include "speedom_algorithm.h"
-#include "args_parser.h"
+
 #include "simulator/simulations_manager.h"
 
 
 int main(int argc, char* argv[]) {
-    ArgsParser parser;
-    auto args = parser.parse(argc, argv);
-    SimulationsManager simulations_manager(args.houses_path, args.algos_path, args.summary_only);
+    logger.setEnableLogging(false);
+    logger.setLogFileName("main_thread.log");
+    SimulationsManager simulations_manager(argc, argv);
     simulations_manager.runAllSimulations();
     return EXIT_SUCCESS;
 }

@@ -36,7 +36,7 @@ bin/*
 .DS_Store
 
 #logs
-vacuum_cleaner.log
+*.log
 
 # vscode
 .vscode/settings.json

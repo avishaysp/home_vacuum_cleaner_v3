@@ -1,42 +1,76 @@
-// src/simulations_manager.cpp
+// src/simulator/simulations_manager.cpp
 
 #include "simulations_manager.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 
-SimulationsManager::SimulationsManager(const std::string& houses_dir, const std::string& algo_dir, bool summary_only) {
-    loadHouses(houses_dir);
-    loadAlgorithmLibs(algo_dir);
+SimulationsManager::SimulationsManager(int argc, char* argv[]) {
+    auto args = args_parser.parse(argc, argv);
+    loadHouses(args.houses_path);
+    loadAlgorithmLibs(args.algos_path);
+    user_num_of_threads = args.user_num_of_threads;
     auto number_of_algos = AlgorithmRegistrar::getAlgorithmRegistrar().count();
     // fill scores with zeros
     scores.resize(number_of_algos);
     for (size_t i = 0; i < number_of_algos; i++) {
         scores[i].resize(houses_files.size(), 0);
     }
-    if (summary_only) {
+    if (args.summary_only) {
         Simulator::disableOutputWriting();
     }
 }
 
 void SimulationsManager::runAllSimulations() {
-    logger.log(INFO, "running all combinations", FILE_LOC);
-    auto& registrar = AlgorithmRegistrar::getAlgorithmRegistrar();
-    logger.log(INFO, std::format("found {} algoritms registered", registrar.count()), FILE_LOC);
+    logger.log(INFO, "Running all combinations concurrently", FILE_LOC);
 
-    size_t algo_index = 0;
-    for (const auto& algo : registrar) {
-        size_t house_index = 0;
-        for (const auto& house_file : houses_files) {
-            auto algorithm = algo.create();
+    auto& registrar = AlgorithmRegistrar::getAlgorithmRegistrar();
+    size_t num_of_algos = registrar.count();
+    size_t num_of_houses = houses_files.size();
+    size_t total_tasks = num_of_houses * num_of_algos;
+
+    std::atomic<size_t> next_task(0);
+
+    // for each thread, continue until task_index >= total_tasks
+    auto job = [&]() {
+        while (true) {
+            size_t task_index = next_task.fetch_add(1);
+            if (task_index >= total_tasks) {
+                break;
+            }
+
+            size_t algo_index = task_index / num_of_houses;
+            size_t house_index = task_index % num_of_houses;
+
+            auto algo_iter = registrar.begin() + algo_index;
+            auto algorithm = algo_iter->create();
+            std::string algo_name = algo_iter->name();
             Simulator simulator;
-            simulator.setAlgorithm(algorithm, algo.name());
-            simulator.readHouseFile(house_file);
-            simulator.run();
-            scores[algo_index][house_index] = simulator.getScore();
-            house_index++;
+            std::string house_name = getHouseName(houses_files[house_index]);
+            logger.setLogFileName(std::format("{}-{}.log", house_name, algo_name));
+            simulator.readHouseFile(houses_files[house_index]);
+            simulator.setAlgorithm(algorithm, algo_name);
+            simulator.runWithTimeout();
+
+            scores[algo_index][house_index] = simulator.calcScore();
         }
-        algo_index++;
+    };
+
+    // Launch threads
+    auto hw_limit = size_t(std::thread::hardware_concurrency());
+    logger.log(INFO, std::format("hardware support up to {} threads", hw_limit), FILE_LOC);
+    size_t max_threads_count = std::min({user_num_of_threads, total_tasks, hw_limit});
+    logger.log(INFO, std::format("launching {} threads", max_threads_count), FILE_LOC);
+    std::vector<std::thread> threads;
+    for (size_t i = 0; i < max_threads_count; i++) {
+        logger.log(INFO, std::format("launching thread {}", i + 1), FILE_LOC);
+        threads.emplace_back(job);
+    }
+
+    for (auto& tread : threads) {
+        if (tread.joinable()) {
+            tread.join();
+        }
     }
     writeScoresToCSV();
 }
@@ -129,4 +163,14 @@ void SimulationsManager::writeScoresToCSV() const {
 SimulationsManager::~SimulationsManager() {
     AlgorithmRegistrar::getAlgorithmRegistrar().clear();
     unloadAlgorithmLibs();
+}
+
+std::string SimulationsManager::getHouseName(const std::string& house_file) const {
+    std::size_t last_slash_pos = house_file.find_last_of('/');
+    auto house_name = house_file.substr(last_slash_pos + 1);
+    std::size_t last_dot_pos = house_name.find_last_of('.');
+    if (last_dot_pos != std::string::npos) {
+        house_name = house_name.substr(0, last_dot_pos);
+    }
+    return house_name;
 }
