@@ -138,9 +138,9 @@ void Simulator::runWithTimeout() {
 
     for (size_t i = 0; i < max_steps; ++i) {
         auto current_time = std::chrono::steady_clock::now();
-        auto elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time - start_time);
-        logger.log(INFO, std::format("elapsed time so far: {} ns", elapsed_time.count()), FILE_LOC);
-        if (1000000 * size_t(elapsed_time.count()) > max_steps) {
+        auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(current_time - start_time);
+        logger.log(INFO, std::format("elapsed time so far: {} us", elapsed_time.count()), FILE_LOC);
+        if (size_t(elapsed_time.count()) > 1000 * max_steps) {
             logger.log(WARNING, "Time limit exceeded, ending simulation early", FILE_LOC);
             curr_status = Status::TIMEOUT;
             break;
