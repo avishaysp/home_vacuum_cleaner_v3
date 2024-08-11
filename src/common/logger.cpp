@@ -6,10 +6,28 @@ Logger& Logger::getInstance() {
     return instance;
 }
 
+void Logger::setLogFileName(const std::string& logFileName) {
+    std::lock_guard<std::mutex> lock(logMutex);
+    std::thread::id threadId = std::this_thread::get_id();
+
+    if (logFiles.find(threadId) != logFiles.end() && logFiles[threadId] != logFileName) {
+        // Close the current log file if it is open
+        if (logStreams.find(threadId) != logStreams.end() && logStreams[threadId].is_open()) {
+            logStreams[threadId].close();
+        }
+    }
+
+    logFiles[threadId] = logFileName;
+    openLogFile(logFileName);
+}
+
 void Logger::log(LogLevel level, const std::string& message, const std::string& file, int line) {
-    std::lock_guard<std::mutex> lock(mtx); 
-    if (!logStream.is_open()) {
-        openLogFile();
+    std::lock_guard<std::mutex> lock(logMutex);
+    std::thread::id threadId = std::this_thread::get_id();
+
+    // Ensure the log file is open
+    if (logStreams.find(threadId) == logStreams.end() || !logStreams[threadId].is_open()) {
+        openLogFile(logFiles[threadId]);
     }
 
     std::string filename = file;
@@ -19,35 +37,41 @@ void Logger::log(LogLevel level, const std::string& message, const std::string& 
         filename = file.substr(pos + 1);
     }
 
-    if (logStream.is_open()) {
+    if (logStreams[threadId].is_open()) {
         std::time_t now = std::time(nullptr);
-        logStream   << "[" << std::put_time(std::localtime(&now), "%Y-%m-%d %H:%M:%S") << "] "
-                    << getLogLevelString(level) << ": "
-                    << filename << ":" << line << " " << message << std::endl;
+        logStreams[threadId]    << "[" << std::put_time(std::localtime(&now), "%Y-%m-%d %H:%M:%S") << "] "
+                                << getLogLevelString(level) << ": "
+                                << filename << ":" << line << " " << message << std::endl;
     } else {
-        std::cerr << "Unable to write to log file: " << logFile << std::endl;
+        std::cerr << "Unable to write to log file for thread: " << threadId << std::endl;
     }
 
     if (level == FATAL) {
+        // TODO: switch to exception
         std::exit(EXIT_FAILURE);
     }
 }
 
 Logger::~Logger() {
-    if (logStream.is_open()) {
-        logStream.close();
+    std::lock_guard<std::mutex> lock(logMutex);
+    for (auto& [id, stream] : logStreams) {
+        if (stream.is_open()) {
+            stream.close();
+        }
     }
 }
 
-void Logger::openLogFile() {
-    if (firstOpen) {
-        logStream.open(logFile, std::ios_base::out | std::ios_base::trunc);
-        firstOpen = false;
-    } else {
-        logStream.open(logFile, std::ios_base::out | std::ios_base::app);
+void Logger::openLogFile(const std::string& logFileName) {
+    std::thread::id threadId = std::this_thread::get_id();
+
+    if (logStreams.find(threadId) != logStreams.end() && logStreams[threadId].is_open()) {
+        logStreams[threadId].close();
     }
-    if (!logStream.is_open()) {
-        std::cerr << "Failed to open log file: " << logFile << std::endl;
+
+    logStreams[threadId].open(logFileName, std::ios_base::out | std::ios_base::trunc);
+
+    if (!logStreams[threadId].is_open()) {
+        std::cerr << "Failed to open log file: " << logFileName << " for thread: " << threadId << std::endl;
     }
 }
 

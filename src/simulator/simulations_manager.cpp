@@ -45,7 +45,7 @@ void SimulationsManager::runAllSimulations() {
             auto algo_iter = registrar.begin() + algo_index;
             auto algorithm = algo_iter->create();
             std::string algo_name = algo_iter->name();
-
+            logger.setLogFileName(std::format("{}-{}.log", houses_files[house_index], algo_name));
             Simulator simulator;
             simulator.setAlgorithm(algorithm, algo_name);
             simulator.readHouseFile(houses_files[house_index]);

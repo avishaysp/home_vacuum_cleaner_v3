@@ -8,6 +8,8 @@
 #include <ctime>
 #include <iomanip>
 #include <mutex>
+#include <thread>
+#include <unordered_map>
 
 #define FILE_LOC __FILE__, __LINE__
 
@@ -21,20 +23,21 @@ class Logger {
 public:
     static Logger& getInstance();
     void log(LogLevel level, const std::string& message, const std::string& file, int line);
+    void setLogFileName(const std::string& logFileName);
 
 private:
-    Logger() : logFile("vacuum_cleaner.log"), firstOpen(true) {}
+    Logger() {}
     ~Logger();
 
     Logger(const Logger&) = delete;
     Logger& operator=(const Logger&) = delete;
 
-    std::ofstream logStream;
-    std::string logFile;
-    bool firstOpen;
-    std::mutex mtx; 
+    std::unordered_map<std::thread::id, std::ofstream> logStreams;
+    std::unordered_map<std::thread::id, std::string> logFiles;
 
-    void openLogFile();
+    std::mutex logMutex;
+
+    void openLogFile(const std::string& logFileName);
     std::string getLogLevelString(LogLevel level);
 };
 
