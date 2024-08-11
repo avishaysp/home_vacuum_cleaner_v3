@@ -42,6 +42,25 @@ private:
 
     void openLogFile(const std::string& logFileName);
     std::string getLogLevelString(LogLevel level);
+    void throwRelevantException(const std::string& message, const std::string& file);
+};
+
+class AlgorithmException : public std::exception {
+public:
+    explicit AlgorithmException(const std::string& message) : msg_(message) {}
+    virtual const char* what() const noexcept override { return msg_.c_str(); }
+
+private:
+    std::string msg_;
+};
+
+class HouseException : public std::exception {
+public:
+    explicit HouseException(const std::string& message) : msg_(message) {}
+    virtual const char* what() const noexcept override { return msg_.c_str(); }
+
+private:
+    std::string msg_;
 };
 
 extern Logger& logger;

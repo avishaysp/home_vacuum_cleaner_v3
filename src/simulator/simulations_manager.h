@@ -32,7 +32,9 @@ private:
     void loadHouses(const std::string& houses_dir);
     void loadAlgorithmLibs(const std::string& algos_dir);
     void unloadAlgorithmLibs();
+    void launchThreads(std::function<void()> job, size_t total_tasks);
     void writeScoresToCSV() const;
     std::string getHouseName(const std::string& house_file) const;
+    void logErrorToFile(const std::string& algo_name, const std::string& error_message);
 };
 
