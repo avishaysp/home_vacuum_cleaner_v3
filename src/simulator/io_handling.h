@@ -41,8 +41,10 @@ class FileWriter {
 public:
     FileWriter(const std::string& file_path);
 
-    void writeNumberOfSteps(const Path& path);
+    void writeNumberOfSteps(int number_of_steps);
     void writePath(const Path& path);
     void writeDirt(size_t dirt);
+    void writeInDock(bool in_dock);
+    void writeScore(int score);
     void writeStatus(Status status);
 };

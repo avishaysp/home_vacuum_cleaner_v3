@@ -39,9 +39,11 @@ void Simulator::disableOutputWriting() {
 void Simulator::writeToOutputFile(Status status) {
     std::string output_file = outputFileName();
     FileWriter fw(output_file);
-    fw.writeNumberOfSteps(history_path);
+    fw.writeNumberOfSteps(steps_cnt);
     fw.writeDirt(house->calcTotalDirt());
     fw.writeStatus(status);
+    fw.writeInDock(current_location == house->getDockingStation());
+    fw.writeScore(calcScore());
     fw.writePath(history_path);
 }
 
