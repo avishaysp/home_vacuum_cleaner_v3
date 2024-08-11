@@ -47,8 +47,8 @@ void SimulationsManager::runAllSimulations() {
             std::string algo_name = algo_iter->name();
             logger.setLogFileName(std::format("{}-{}.log", houses_files[house_index], algo_name));
             Simulator simulator;
-            simulator.setAlgorithm(algorithm, algo_name);
             simulator.readHouseFile(houses_files[house_index]);
+            simulator.setAlgorithm(algorithm, algo_name);
             simulator.runWithTimeout();
 
             scores[algo_index][house_index] = simulator.calcScore();
