@@ -48,7 +48,6 @@ Step AbstractSpeedomAlgorithm::calculateNextStep() {
         battery_size = battery_level;
         first_step = false;
     }
-
     house.updateGraph(dirt_level, possibleLocations);
 
     if (current_location == starting_location && battery_level < battery_size) {

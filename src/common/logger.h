@@ -24,10 +24,13 @@ public:
     static Logger& getInstance();
     void log(LogLevel level, const std::string& message, const std::string& file, int line);
     void setLogFileName(const std::string& logFileName);
+    static void setEnableLogging(bool enable);
+    static bool isLoggingEnabled();
 
 private:
     Logger() {}
     ~Logger();
+    static bool enable_logging;
 
     Logger(const Logger&) = delete;
     Logger& operator=(const Logger&) = delete;

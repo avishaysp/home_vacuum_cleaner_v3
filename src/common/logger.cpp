@@ -1,12 +1,19 @@
 // src/logger.cpp
 #include "logger.h"
 
+
+bool Logger::enable_logging = true;
+
+
 Logger& Logger::getInstance() {
     static Logger instance;
     return instance;
 }
 
 void Logger::setLogFileName(const std::string& logFileName) {
+    if (!enable_logging) {
+        return;
+    }
     std::lock_guard<std::mutex> lock(logMutex);
     std::thread::id threadId = std::this_thread::get_id();
 
@@ -22,6 +29,9 @@ void Logger::setLogFileName(const std::string& logFileName) {
 }
 
 void Logger::log(LogLevel level, const std::string& message, const std::string& file, int line) {
+    if (!enable_logging) {
+        return;
+    }
     std::lock_guard<std::mutex> lock(logMutex);
     std::thread::id threadId = std::this_thread::get_id();
 
@@ -85,6 +95,15 @@ std::string Logger::getLogLevelString(LogLevel level) {
             return "UNKNOWN";
     }
 }
+
+void Logger::setEnableLogging(bool enable) {
+    enable_logging = enable;
+}
+
+bool Logger::isLoggingEnabled() {
+    return enable_logging;
+}
+
 
 Logger& logger = Logger::getInstance();
 
