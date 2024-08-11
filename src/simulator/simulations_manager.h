@@ -33,5 +33,6 @@ private:
     void loadAlgorithmLibs(const std::string& algos_dir);
     void unloadAlgorithmLibs();
     void writeScoresToCSV() const;
+    std::string getHouseName(const std::string& house_file) const;
 };
 

@@ -45,10 +45,11 @@ void SimulationsManager::runAllSimulations() {
             auto algo_iter = registrar.begin() + algo_index;
             auto algorithm = algo_iter->create();
             std::string algo_name = algo_iter->name();
-            logger.setLogFileName(std::format("{}-{}.log", houses_files[house_index], algo_name));
             Simulator simulator;
-            simulator.setAlgorithm(algorithm, algo_name);
+            std::string house_name = getHouseName(houses_files[house_index]);
+            logger.setLogFileName(std::format("{}-{}.log", house_name, algo_name));
             simulator.readHouseFile(houses_files[house_index]);
+            simulator.setAlgorithm(algorithm, algo_name);
             simulator.runWithTimeout();
 
             scores[algo_index][house_index] = simulator.calcScore();
@@ -162,4 +163,14 @@ void SimulationsManager::writeScoresToCSV() const {
 SimulationsManager::~SimulationsManager() {
     AlgorithmRegistrar::getAlgorithmRegistrar().clear();
     unloadAlgorithmLibs();
+}
+
+std::string SimulationsManager::getHouseName(const std::string& house_file) const {
+    std::size_t last_slash_pos = house_file.find_last_of('/');
+    auto house_name = house_file.substr(last_slash_pos + 1);
+    std::size_t last_dot_pos = house_name.find_last_of('.');
+    if (last_dot_pos != std::string::npos) {
+        house_name = house_name.substr(0, last_dot_pos);
+    }
+    return house_name;
 }

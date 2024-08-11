@@ -119,18 +119,27 @@ size_t Simulator::getHistoryLength() const {
 }
 
 std::string Simulator::outputFileName() const {
-    std::size_t lastSlashPos = house_file.find_last_of('/');
-
-    std::string directory = (lastSlashPos == std::string::npos) ? "" : house_file.substr(0, lastSlashPos + 1);
-    std::string filename = (lastSlashPos == std::string::npos) ? house_file : house_file.substr(lastSlashPos + 1);
-    std::size_t lastDotPos = filename.find_last_of('.');
-    if (lastDotPos != std::string::npos) {
-        filename = filename.substr(0, lastDotPos);
-    }
-
-    std::string output_file = std::format("{}-{}.txt", filename, algo_name);
+    std::string house_name = getHouseName();
+    auto directory = getDirectory();
+    std::string output_file = std::format("{}-{}.txt", house_name, algo_name);
 
     return directory + output_file;
+}
+
+std::string Simulator::getHouseName() const {
+    std::size_t last_slash_pos = house_file.find_last_of('/');
+    auto house_name = house_file.substr(last_slash_pos + 1);
+    std::size_t last_dot_pos = house_name.find_last_of('.');
+    if (last_dot_pos != std::string::npos) {
+        house_name = house_name.substr(0, last_dot_pos);
+    }
+    return house_name;
+}
+
+std::string Simulator::getDirectory() const {
+    std::size_t last_slash_pos = house_file.find_last_of('/');
+
+    return (last_slash_pos == std::string::npos) ? "" : house_file.substr(0, last_slash_pos + 1);
 }
 
 void Simulator::runWithTimeout() {

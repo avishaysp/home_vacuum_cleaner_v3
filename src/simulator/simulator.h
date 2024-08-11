@@ -29,6 +29,7 @@ public:
     const Path& getPath() const;
     size_t getHistoryLength() const;
     static void disableOutputWriting();
+    std::string getHouseName() const;
 
 private:
 
@@ -68,5 +69,6 @@ private:
 
     void writeToOutputFile(Status status);
     std::string outputFileName() const;
+    std::string getDirectory() const;
 
 };
