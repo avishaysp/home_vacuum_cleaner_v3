@@ -34,6 +34,7 @@ void SimulationsManager::runAllSimulations() {
     // for each thread, continue until task_index >= total_tasks
     auto job = [&]() {
         while (true) {
+
             size_t task_index = next_task.fetch_add(1);
             if (task_index >= total_tasks) {
                 break;
@@ -44,19 +45,33 @@ void SimulationsManager::runAllSimulations() {
 
             auto algo_iter = registrar.begin() + algo_index;
             auto algorithm = algo_iter->create();
-            std::string algo_name = algo_iter->name();
-            Simulator simulator;
             std::string house_name = getHouseName(houses_files[house_index]);
-            logger.setLogFileName(std::format("{}-{}.log", house_name, algo_name));
-            simulator.readHouseFile(houses_files[house_index]);
-            simulator.setAlgorithm(algorithm, algo_name);
-            simulator.runWithTimeout();
+            try {
+                std::string algo_name = algo_iter->name();
+                Simulator simulator;
+                logger.setLogFileName(std::format("{}-{}.log", house_name, algo_name));
+                simulator.readHouseFile(houses_files[house_index]);
+                simulator.setAlgorithm(algorithm, algo_name);
+                simulator.runWithTimeout();
 
-            scores[algo_index][house_index] = simulator.calcScore();
+                scores[algo_index][house_index] = simulator.calcScore();
+            }
+
+            catch(const AlgorithmException& e) {
+                logErrorToFile(algo_iter->name(), e.what());
+            }
+
+            catch(const std::exception& e) {
+                logErrorToFile(house_name, e.what());
+            }
         }
     };
 
-    // Launch threads
+    launchThreads(job, total_tasks);
+    writeScoresToCSV();
+}
+
+void SimulationsManager::launchThreads(std::function<void()> job, size_t total_tasks) {
     auto hw_limit = size_t(std::thread::hardware_concurrency());
     logger.log(INFO, std::format("hardware support up to {} threads", hw_limit), FILE_LOC);
     size_t max_threads_count = std::min({user_num_of_threads, total_tasks, hw_limit});
@@ -67,12 +82,11 @@ void SimulationsManager::runAllSimulations() {
         threads.emplace_back(job);
     }
 
-    for (auto& tread : threads) {
-        if (tread.joinable()) {
-            tread.join();
+    for (auto& thread : threads) {
+        if (thread.joinable()) {
+            thread.join();
         }
     }
-    writeScoresToCSV();
 }
 
 void SimulationsManager::loadHouses(const std::string& houses_dir) {
@@ -173,4 +187,15 @@ std::string SimulationsManager::getHouseName(const std::string& house_file) cons
         house_name = house_name.substr(0, last_dot_pos);
     }
     return house_name;
+}
+
+void SimulationsManager::logErrorToFile(const std::string& name, const std::string& error_message) {
+    std::string error_file_name = name + ".error";
+    std::ofstream error_file(error_file_name, std::ios::app);
+    if (error_file.is_open()) {
+        error_file << error_message << std::endl;
+        error_file.close();
+    } else {
+        std::cerr << "Failed to open error file: " << error_file_name << std::endl;
+    }
 }

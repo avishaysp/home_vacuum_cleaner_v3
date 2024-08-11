@@ -29,7 +29,7 @@ void Logger::setLogFileName(const std::string& logFileName) {
 }
 
 void Logger::log(LogLevel level, const std::string& message, const std::string& file, int line) {
-    if (!enable_logging) {
+    if (!enable_logging && level != FATAL) {
         return;
     }
     std::lock_guard<std::mutex> lock(logMutex);
@@ -40,23 +40,21 @@ void Logger::log(LogLevel level, const std::string& message, const std::string& 
         openLogFile(logFiles[threadId]);
     }
 
-    std::string filename = file;
-    // Find the position of the last '/' or '\' in the file path
-    size_t pos = file.find_last_of("/\\");
-    if (pos != std::string::npos) {
-        filename = file.substr(pos + 1);
-    }
+    std::filesystem::path fullPath = std::filesystem::absolute(file);
+    std::filesystem::path currentPath = std::filesystem::current_path();
+    std::filesystem::path relativePath = std::filesystem::relative(fullPath, currentPath);
 
+    std::ostringstream logEntryStream;
+    std::time_t now = std::time(nullptr);
+    logEntryStream  << "[" << std::put_time(std::localtime(&now), "%Y-%m-%d %H:%M:%S") << "] "
+                    << getLogLevelString(level) << ": "
+                    << relativePath.string() << ":" << line << " | " << message;
     if (logStreams[threadId].is_open()) {
-        std::time_t now = std::time(nullptr);
-        logStreams[threadId]    << "[" << std::put_time(std::localtime(&now), "%Y-%m-%d %H:%M:%S") << "] "
-                                << getLogLevelString(level) << ": "
-                                << filename << ":" << line << " " << message << std::endl;
+        logStreams[threadId] << logEntryStream.str() << std::endl;
     }
 
     if (level == FATAL) {
-        // TODO: switch to exception
-        std::exit(EXIT_FAILURE);
+        throwRelevantException(logEntryStream.str(), relativePath.string());
     }
 }
 
@@ -102,6 +100,13 @@ void Logger::setEnableLogging(bool enable) {
 
 bool Logger::isLoggingEnabled() {
     return enable_logging;
+}
+
+void Logger::throwRelevantException(const std::string& message, const std::string& file) {
+    if (file.find("algorithm") != std::string::npos) {
+        throw AlgorithmException(message);
+    }
+    throw HouseException(message);
 }
 
 

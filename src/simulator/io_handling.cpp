@@ -219,6 +219,3 @@ void FileWriter::writePath(const Path& path) {
 
     file.close();
 }
-
-
-
