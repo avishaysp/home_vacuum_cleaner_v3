@@ -18,19 +18,19 @@ std::pair<bool, Location> RandomSpeedomAlgorithm::RandomInternalHouse::minimalDi
         }
 
         isEmpty = false;
-        logger.log(INFO, std::format("here location: {}, current distance: {}, current battery: {}", entry.first.toString(), current_dist + 1, current_battery), FILE_LOC);
+        LOG(INFO, std::format("here location: {}, current distance: {}, current battery: {}", entry.first.toString(), current_dist + 1, current_battery));
 
         //possible locations
         if ((entry.second.distance_from_current < min_distance) || isFirst) {
             min_distance = entry.second.distance_from_current;
             isFirst = false;
         }
-    } 
+    }
     if (!isEmpty) {
         for (const auto& entry : internal_graph) {
-            if ((entry.second.distance_from_current == min_distance) && (!entry.second.visited || entry.second.dirt_level != 0) && 
+            if ((entry.second.distance_from_current == min_distance) && (!entry.second.visited || entry.second.dirt_level != 0) &&
                 isFeasible(calculateTravelDistance(entry.first), current_battery, max_steps)) {
-                logger.log(INFO, std::format("RandomSpeedomAlgorithm | minimalDistanceLocation print locations: {}", entry.first.toString()), FILE_LOC);
+                LOG(INFO, std::format("RandomSpeedomAlgorithm | minimalDistanceLocation print locations: {}", entry.first.toString()));
                 all_minimal_location.insert(entry.first);
             }
         }
@@ -38,9 +38,9 @@ std::pair<bool, Location> RandomSpeedomAlgorithm::RandomInternalHouse::minimalDi
 
         int randPos = dis(gen);
         auto it = std::next(all_minimal_location.begin(), randPos);
-        min_location = *it; 
+        min_location = *it;
     }
-    logger.log(INFO, std::format("RandomSpeedomAlgorithm | chosen location form minimalDistanceLocation: {}", min_location.toString()), FILE_LOC);
+    LOG(INFO, std::format("RandomSpeedomAlgorithm | chosen location form minimalDistanceLocation: {}", min_location.toString()));
     return std::make_pair(isEmpty, min_location);
 }
 

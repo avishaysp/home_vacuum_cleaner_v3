@@ -8,7 +8,7 @@ std::pair<bool, Location> SpeedomAlgorithm::DeterministicInternalHouse::minimalD
     size_t min_distance = 0;
 
     for (const auto& entry : internal_graph) {
-        logger.log(INFO, std::format("SpeedomAlgorithm | print locations: {}", entry.first.toString()), FILE_LOC);
+        LOG(INFO, std::format("SpeedomAlgorithm | print locations: {}", entry.first.toString()));
         if ((entry.second.visited && entry.second.dirt_level == 0) || (entry.first == current_location)) {
             continue;
         }
@@ -26,7 +26,7 @@ std::pair<bool, Location> SpeedomAlgorithm::DeterministicInternalHouse::minimalD
             isFirst = false;
         }
     }
-    logger.log(INFO, std::format("SpeedomAlgorithm | chosen location form minimalDistanceLocation: {}", min_location.toString()), FILE_LOC);
+    LOG(INFO, std::format("SpeedomAlgorithm | chosen location form minimalDistanceLocation: {}", min_location.toString()));
     return std::make_pair(isEmpty, min_location);
 
 }
