@@ -7,7 +7,8 @@
 
 struct ArgsParseResults {
     std::string houses_path;
-    std::string algos_path;
+    std::string algo_path;
+    std::optional<std::string> config_path;
     size_t user_num_of_threads;
     bool summary_only;
 };
