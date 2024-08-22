@@ -1,25 +1,61 @@
 // src/simulator/simulations_manager.cpp
 
 #include "simulations_manager.h"
-#include <iostream>
-#include <fstream>
-#include <sstream>
+
 
 SimulationsManager::SimulationsManager(int argc, char* argv[]) {
     auto args = args_parser.parse(argc, argv);
-    loadHouses(args.houses_path);
-    loadAlgorithmLibs(args.algos_path);
-    user_num_of_threads = args.user_num_of_threads;
+    initializeSettings(args);
+    loadHouses(houses_path);
+    loadAlgorithmLibs(algo_path);
     auto number_of_algos = AlgorithmRegistrar::getAlgorithmRegistrar().count();
     // fill scores with zeros
     scores.resize(number_of_algos);
     for (size_t i = 0; i < number_of_algos; i++) {
         scores[i].resize(houses_files.size(), 0);
     }
-    if (args.summary_only) {
+}
+
+void SimulationsManager::initializeSettings(const ArgsParseResults& args) {
+
+    houses_path = args.houses_path;
+    algo_path = args.algo_path;
+    user_num_of_threads =  args.user_num_of_threads;
+    bool summary_only = args.summary_only;
+
+    if (!args.config_path.has_value()) {
+        logger.log(INFO, "config path was not provided", FILE_LOC);
+        return;
+    }
+
+    ConfigReader configReader(*args.config_path);
+    configReader.loadFile();
+    if (auto ret = configReader.getValue("house_path"); ret.has_value()) {
+        logger.log(INFO, std::format("overriding houses folder from config: {}", ret.value()), FILE_LOC);
+        houses_path = ret.value();
+    }
+    if (auto ret = configReader.getValue("algo_path"); ret.has_value()) {
+        logger.log(INFO, std::format("overriding algo folder from config: {}", ret.value()), FILE_LOC);
+        algo_path = ret.value();
+    }
+    if (auto ret = configReader.getValue("num_threads"); ret.has_value()) {
+        auto val = ret.value();
+        if (!val.empty() && std::all_of(val.begin(), val.end(), ::isdigit)) {
+            logger.log(INFO, std::format("overriding threads count from config: {}", ret.value()), FILE_LOC);
+            user_num_of_threads =  std::stoul(val);
+        }
+    }
+    if (auto ret = configReader.getValue("summary_only"); ret.has_value()) {
+        logger.log(INFO, std::format("overriding 'summary only' from config: {}", ret.value()), FILE_LOC);
+        summary_only = ret.value() == "true";
+    }
+
+
+    if (summary_only) {
         Simulator::disableOutputWriting();
     }
 }
+
 
 void SimulationsManager::runAllSimulations() {
     logger.log(INFO, "Running all combinations concurrently", FILE_LOC);
@@ -69,6 +105,7 @@ void SimulationsManager::runAllSimulations() {
 
     launchThreads(job, total_tasks);
     writeScoresToCSV();
+    logger.log(INFO, "Run Done!", FILE_LOC);
 }
 
 void SimulationsManager::launchThreads(std::function<void()> job, size_t total_tasks) {

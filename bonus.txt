@@ -1,0 +1,8 @@
+## Config file:
+    Added support for using config file to provide arguments to the program.
+    Arguments that apear in the config file will ovverride the values of the CLI/default parameters.
+    An example config file is provided:
+        params.config
+
+    To run with config file:
+        add flag -config=<file_path>
