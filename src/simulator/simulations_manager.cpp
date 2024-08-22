@@ -24,29 +24,29 @@ void SimulationsManager::initializeSettings(const ArgsParseResults& args) {
     bool summary_only = args.summary_only;
 
     if (!args.config_path.has_value()) {
-        logger.log(INFO, "config path was not provided", FILE_LOC);
+        LOG(INFO, "config path was not provided");
         return;
     }
 
     ConfigReader configReader(*args.config_path);
     configReader.loadFile();
     if (auto ret = configReader.getValue("house_path"); ret.has_value()) {
-        logger.log(INFO, std::format("overriding houses folder from config: {}", ret.value()), FILE_LOC);
+        LOG(INFO, std::format("overriding houses folder from config: {}", ret.value()));
         houses_path = ret.value();
     }
     if (auto ret = configReader.getValue("algo_path"); ret.has_value()) {
-        logger.log(INFO, std::format("overriding algo folder from config: {}", ret.value()), FILE_LOC);
+        LOG(INFO, std::format("overriding algo folder from config: {}", ret.value()));
         algo_path = ret.value();
     }
     if (auto ret = configReader.getValue("num_threads"); ret.has_value()) {
         auto val = ret.value();
         if (!val.empty() && std::all_of(val.begin(), val.end(), ::isdigit)) {
-            logger.log(INFO, std::format("overriding threads count from config: {}", ret.value()), FILE_LOC);
+            LOG(INFO, std::format("overriding threads count from config: {}", ret.value()));
             user_num_of_threads =  std::stoul(val);
         }
     }
     if (auto ret = configReader.getValue("summary_only"); ret.has_value()) {
-        logger.log(INFO, std::format("overriding 'summary only' from config: {}", ret.value()), FILE_LOC);
+        LOG(INFO, std::format("overriding 'summary only' from config: {}", ret.value()));
         summary_only = ret.value() == "true";
     }
 
@@ -58,7 +58,7 @@ void SimulationsManager::initializeSettings(const ArgsParseResults& args) {
 
 
 void SimulationsManager::runAllSimulations() {
-    logger.log(INFO, "Running all combinations concurrently", FILE_LOC);
+    LOG(INFO, "Running all combinations concurrently");
 
     auto& registrar = AlgorithmRegistrar::getAlgorithmRegistrar();
     size_t num_of_algos = registrar.count();
@@ -105,17 +105,17 @@ void SimulationsManager::runAllSimulations() {
 
     launchThreads(job, total_tasks);
     writeScoresToCSV();
-    logger.log(INFO, "Run Done!", FILE_LOC);
+    LOG(INFO, "Run Done!");
 }
 
 void SimulationsManager::launchThreads(std::function<void()> job, size_t total_tasks) {
     auto hw_limit = size_t(std::thread::hardware_concurrency());
-    logger.log(INFO, std::format("hardware support up to {} threads", hw_limit), FILE_LOC);
+    LOG(INFO, std::format("hardware support up to {} threads", hw_limit));
     size_t max_threads_count = std::min({user_num_of_threads, total_tasks, hw_limit});
-    logger.log(INFO, std::format("launching {} threads", max_threads_count), FILE_LOC);
+    LOG(INFO, std::format("launching {} threads", max_threads_count));
     std::vector<std::thread> threads;
     for (size_t i = 0; i < max_threads_count; i++) {
-        logger.log(INFO, std::format("launching thread {}", i + 1), FILE_LOC);
+        LOG(INFO, std::format("launching thread {}", i + 1));
         threads.emplace_back(job);
     }
 
@@ -127,38 +127,38 @@ void SimulationsManager::launchThreads(std::function<void()> job, size_t total_t
 }
 
 void SimulationsManager::loadHouses(const std::string& houses_dir) {
-    logger.log(INFO, std::format("searching for .house files in folder: {}", houses_dir.size()), FILE_LOC);
+    LOG(INFO, std::format("searching for .house files in folder: {}", houses_dir.size()));
 
     for (const auto& entry : std::filesystem::directory_iterator(houses_dir)) {
         auto path = entry.path();
         if (path.extension() == ".house") {
-            logger.log(INFO, std::format("found house file: {}", path.filename().string()), FILE_LOC);
+            LOG(INFO, std::format("found house file: {}", path.filename().string()));
             houses_files.push_back(path);
         }
     }
-    logger.log(INFO, std::format("found total of {} house files in relevant dir", houses_files.size()), FILE_LOC);
+    LOG(INFO, std::format("found total of {} house files in relevant dir", houses_files.size()));
 }
 
 void SimulationsManager::loadAlgorithmLibs(const std::string& algorithms_dir) {
-    logger.log(INFO, std::format("Loading all .so files from folder: {}", algorithms_dir), FILE_LOC);
+    LOG(INFO, std::format("Loading all .so files from folder: {}", algorithms_dir));
 
     for (const auto& entry : std::filesystem::directory_iterator(algorithms_dir)) {
         auto path = entry.path();
         if (path.extension() == ".so") {
-            logger.log(INFO, std::format("Loading algorithm file: {}", path.filename().string()), FILE_LOC);
+            LOG(INFO, std::format("Loading algorithm file: {}", path.filename().string()));
 
             void* handle = dlopen(path.c_str(), RTLD_LAZY);
             if (!handle) {
-                logger.log(WARNING, std::string("Failed to load algorithm: ") + path.string(), FILE_LOC);
+                LOG(WARNING, std::string("Failed to load algorithm: ") + path.string());
                 continue;
             } else {
                 library_handles.push_back(handle);
             }
         } else {
-            logger.log(INFO, std::format("Non so file: {}", path.filename().string()), FILE_LOC);
+            LOG(INFO, std::format("Non so file: {}", path.filename().string()));
         }
     }
-    logger.log(INFO, std::format("Loaded {} algorithm libraries", library_handles.size()), FILE_LOC);
+    LOG(INFO, std::format("Loaded {} algorithm libraries", library_handles.size()));
 }
 
 void SimulationsManager::unloadAlgorithmLibs() {
@@ -168,7 +168,7 @@ void SimulationsManager::unloadAlgorithmLibs() {
         }
     }
     library_handles.clear();
-    logger.log(INFO, "Unloaded all algorithm libraries", FILE_LOC);
+    LOG(INFO, "Unloaded all algorithm libraries");
 }
 
 
@@ -177,7 +177,7 @@ void SimulationsManager::writeScoresToCSV() const {
     std::ofstream file(csv_path);
 
     if (!file.is_open()) {
-        logger.log(FATAL, "Failed to open file: " + csv_path, FILE_LOC);
+        LOG(FATAL, "Failed to open file: " + csv_path);
         return;
     }
 
@@ -208,7 +208,7 @@ void SimulationsManager::writeScoresToCSV() const {
     }
 
     file.close();
-    logger.log(INFO, "Scores written to " + csv_path, FILE_LOC);
+    LOG(INFO, "Scores written to " + csv_path);
 }
 
 SimulationsManager::~SimulationsManager() {

@@ -1,8 +1,5 @@
-// src/logger.cpp
+// src/connon/logger.cpp
 #include "logger.h"
-
-
-bool Logger::enable_logging = true;
 
 
 Logger& Logger::getInstance() {
@@ -11,9 +8,6 @@ Logger& Logger::getInstance() {
 }
 
 void Logger::setLogFileName(const std::string& logFileName) {
-    if (!enable_logging) {
-        return;
-    }
     std::lock_guard<std::mutex> lock(logMutex);
     std::thread::id threadId = std::this_thread::get_id();
 
@@ -29,9 +23,6 @@ void Logger::setLogFileName(const std::string& logFileName) {
 }
 
 void Logger::log(LogLevel level, const std::string& message, const std::string& file, int line) {
-    if (!enable_logging && level != FATAL) {
-        return;
-    }
     std::lock_guard<std::mutex> lock(logMutex);
     std::thread::id threadId = std::this_thread::get_id();
 
@@ -77,7 +68,7 @@ void Logger::openLogFile(const std::string& logFileName) {
     logStreams[threadId].open(logFileName, std::ios_base::out | std::ios_base::trunc);
 
     if (!logStreams[threadId].is_open()) {
-        // std::cerr << "Failed to open log file: " << logFileName << " for thread: " << threadId << std::endl;
+        std::cerr << "Failed to open log file: " << logFileName << " for thread: " << threadId << std::endl;
     }
 }
 
@@ -94,13 +85,6 @@ std::string Logger::getLogLevelString(LogLevel level) {
     }
 }
 
-void Logger::setEnableLogging(bool enable) {
-    enable_logging = enable;
-}
-
-bool Logger::isLoggingEnabled() {
-    return enable_logging;
-}
 
 void Logger::throwRelevantException(const std::string& message, const std::string& file) {
     if (file.find("algorithm") != std::string::npos) {

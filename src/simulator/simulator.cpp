@@ -145,20 +145,20 @@ std::string Simulator::getDirectory() const {
 void Simulator::runWithTimeout() {
     auto start_time = std::chrono::steady_clock::now();
     Step step;
-    logger.log(INFO, std::format("running algorithm '{}' on house {} with timeout of {} ms", algo_name, house_file, max_steps), FILE_LOC);
+    LOG(INFO, std::format("running algorithm '{}' on house {} with timeout of {} ms", algo_name, house_file, max_steps));
 
     for (size_t i = 0; i < max_steps; ++i) {
         auto current_time = std::chrono::steady_clock::now();
         auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(current_time - start_time);
-        logger.log(INFO, std::format("elapsed time so far: {} us", elapsed_time.count()), FILE_LOC);
+        LOG(INFO, std::format("elapsed time so far: {} us", elapsed_time.count()));
         if (size_t(elapsed_time.count()) > 1000 * max_steps) {
-            logger.log(WARNING, "Time limit exceeded, ending simulation early", FILE_LOC);
+            LOG(WARNING, "Time limit exceeded, ending simulation early");
             curr_status = Status::TIMEOUT;
             break;
         }
 
         if ((current_location != house->getDockingStation()) && current_battery <= 0) {
-            logger.log(WARNING, "Battery level is empty, Can not continue cleaning", FILE_LOC);
+            LOG(WARNING, "Battery level is empty, Can not continue cleaning");
             curr_status = Status::DEAD;
             break;
         }
@@ -168,14 +168,14 @@ void Simulator::runWithTimeout() {
 
         if ((step == Step::Stay) && (current_location == house->getDockingStation())) {
             if (current_battery == battery_size) {
-                logger.log(WARNING, "Stayed in docking station even though battary is full. Inappropriate behavior.", FILE_LOC);
+                LOG(WARNING, "Stayed in docking station even though battary is full. Inappropriate behavior.");
             }
             current_battery = std::min(current_battery + delta_battery, battery_size);
-            logger.log(INFO, std::format("New battery after charging {}", current_battery / 100), FILE_LOC);
+            LOG(INFO, std::format("New battery after charging {}", current_battery / 100));
         }
 
         else if (step == Step::Stay) {
-            logger.log(INFO, "Stay and clean", FILE_LOC);
+            LOG(INFO, "Stay and clean");
             updateDirtLevel();
             current_battery -= 100;
         }
@@ -186,7 +186,7 @@ void Simulator::runWithTimeout() {
         }
 
         else {
-            logger.log(INFO, "Simulator successfully finished running ", FILE_LOC);
+            LOG(INFO, "Simulator successfully finished running ");
             if (enable_live_visualization) {
                 live_simulator.simulate(*house, current_location, step, false, (max_steps - 1) - i, current_battery / 100);
             }
@@ -206,7 +206,7 @@ void Simulator::runWithTimeout() {
         addToHistory(Step::Finish);
     }
     if (write_output) {
-        logger.log(INFO, "Prepering output file", FILE_LOC);
+        LOG(INFO, "Prepering output file");
         std::string output_file = outputFileName();
         writeToOutputFile(curr_status);
     }
@@ -230,7 +230,7 @@ size_t Simulator::calcScore() const {
 
 void Simulator::updateDirtLevel() {
     if (house->getTile(current_location).getDirtLevel() == 0) {
-        logger.log(FATAL, "Stayed in a floor tile that is already clean. Inappropriate behavior.", FILE_LOC);
+        LOG(FATAL, "Stayed in a floor tile that is already clean. Inappropriate behavior.");
     }
     (house->getTile(current_location)).decreaseOneDirt();
 }
@@ -247,28 +247,28 @@ void Simulator::move(Step step) {
         case Step::North:
             next_row = curr_row - 1;
             if (next_row < 0) {
-                logger.log(FATAL, "Tried to move North from northest row", FILE_LOC);
+                LOG(FATAL, "Tried to move North from northest row");
             }
             next_loc = Location(next_row, curr_col);
             break;
         case Step::South:
             next_row = curr_row + 1;
             if (next_row >= (int)rows) {
-                logger.log(FATAL, "Tried to move South from southest row", FILE_LOC);
+                LOG(FATAL, "Tried to move South from southest row");
             }
             next_loc = Location(next_row, curr_col);
             break;
         case Step::East:
             next_col = curr_col + 1;
             if (next_col >= (int)cols) {
-                logger.log(FATAL, "Tried to move East from most east col", FILE_LOC);
+                LOG(FATAL, "Tried to move East from most east col");
             }
             next_loc = Location(curr_row, next_col);
             break;
         case Step::West:
             next_col = curr_col - 1;
             if (next_col < 0) {
-                logger.log(FATAL, "Tried to move West from most west col", FILE_LOC);
+                LOG(FATAL, "Tried to move West from most west col");
             }
             next_loc = Location(curr_row, next_col);
             break;
@@ -276,9 +276,9 @@ void Simulator::move(Step step) {
             break;
     }
     if (house->getTile(next_loc).isWall()) {
-        logger.log(FATAL, "Tried to move into a wall", FILE_LOC);
+        LOG(FATAL, "Tried to move into a wall");
     }
-    logger.log(INFO, std::format("Move to location {}", next_loc.toString()), FILE_LOC);
+    LOG(INFO, std::format("Move to location {}", next_loc.toString()));
     current_location = next_loc;
 }
 

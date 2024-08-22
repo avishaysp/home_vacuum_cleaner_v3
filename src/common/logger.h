@@ -1,4 +1,4 @@
-// src/logger.h
+// src/connon/logger.h
 #pragma once
 
 #include <iostream>
@@ -11,6 +11,9 @@
 #include <thread>
 #include <unordered_map>
 
+// uncomment this to enable logging:
+// #define ENABLE_LOGGING
+
 #define FILE_LOC __FILE__, __LINE__
 
 enum LogLevel {
@@ -19,18 +22,21 @@ enum LogLevel {
     FATAL
 };
 
+#ifdef ENABLE_LOGGING
+    #define LOG(level, message) logger.log(level, message, FILE_LOC)
+#else
+    #define LOG(level, message) do { } while (0)
+#endif
+
 class Logger {
 public:
     static Logger& getInstance();
     void log(LogLevel level, const std::string& message, const std::string& file, int line);
     void setLogFileName(const std::string& logFileName);
-    static void setEnableLogging(bool enable);
-    static bool isLoggingEnabled();
 
 private:
     Logger() {}
     ~Logger();
-    static bool enable_logging;
 
     Logger(const Logger&) = delete;
     Logger& operator=(const Logger&) = delete;
