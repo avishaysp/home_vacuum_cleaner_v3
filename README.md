@@ -1,7 +1,7 @@
 Authors: Avishay Spitzer & Dory Grossman
 
 # Description
-The program simulates 
+The program simulates
 
 The program recives as an argument a file containing:
 1. maximum steps allowed on the run.
@@ -24,6 +24,7 @@ He returns to dock when finished mapping the house and can't clean any more of i
 Same as 'Speedom', but we use randomness for picking which tile to go to from all the tiles with the minimum distance.
 
 # Example input
+```
 1. stam house
 MaxSteps = 200
 MaxBattery=30
@@ -32,6 +33,7 @@ Cols =10
 WWWW
 W D
 W 123456789
+```
 
 ### The vacuum cleaner see the house as:
 ```
