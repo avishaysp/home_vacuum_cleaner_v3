@@ -17,8 +17,16 @@ void Logger::setLogFileName(const std::string& logFileName) {
             logStreams[threadId].close();
         }
     }
-    logFiles[threadId] = logFileName;
-    openLogFile(logFileName);
+    std::filesystem::path logDir("log");
+    std::filesystem::path fullPath = logDir / logFileName;
+
+    logFiles[threadId] = fullPath.string();
+
+    if (!std::filesystem::exists(logDir)) {
+        std::filesystem::create_directories(logDir);
+    }
+
+    openLogFile(fullPath.string());
 }
 
 void Logger::log(LogLevel level, const std::string& message, const std::string& file, int line) {
