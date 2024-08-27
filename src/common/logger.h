@@ -10,6 +10,7 @@
 #include <mutex>
 #include <thread>
 #include <unordered_map>
+#include <filesystem>
 
 // uncomment this to enable logging:
 // #define ENABLE_LOGGING
