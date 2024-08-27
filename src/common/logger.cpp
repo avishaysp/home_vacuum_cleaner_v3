@@ -8,13 +8,12 @@ Logger& Logger::getInstance() {
 }
 
 void Logger::setLogFileName(const std::string& logFileName) {
-    std::lock_guard<std::mutex> lock(logMutex);
     std::thread::id threadId = std::this_thread::get_id();
+    std::lock_guard<std::mutex> lock(logMutex);
 
     if (logFiles.find(threadId) != logFiles.end()) {
         // Close the current log file if it is open
         if (logStreams.find(threadId) != logStreams.end() && logStreams[threadId].is_open()) {
-            // std::cout << "2" << std::endl;
             logStreams[threadId].close();
         }
     }
@@ -23,12 +22,13 @@ void Logger::setLogFileName(const std::string& logFileName) {
 }
 
 void Logger::log(LogLevel level, const std::string& message, const std::string& file, int line) {
-    std::lock_guard<std::mutex> lock(logMutex);
     std::thread::id threadId = std::this_thread::get_id();
-
-    // Ensure the log file is open
-    if (logStreams.find(threadId) == logStreams.end() || !logStreams[threadId].is_open()) {
-        openLogFile(logFiles[threadId]);
+    {
+        std::lock_guard<std::mutex> lock(logMutex);
+        // Ensure the log file is open
+        if (logStreams.find(threadId) == logStreams.end() || !logStreams[threadId].is_open()) {
+            openLogFile(logFiles[threadId]);
+        }
     }
 
     std::filesystem::path fullPath = std::filesystem::absolute(file);
@@ -40,6 +40,8 @@ void Logger::log(LogLevel level, const std::string& message, const std::string& 
     logEntryStream  << "[" << std::put_time(std::localtime(&now), "%Y-%m-%d %H:%M:%S") << "] "
                     << getLogLevelString(level) << ": "
                     << relativePath.string() << ":" << line << " | " << message;
+
+    // no locking, since each thread has its own log
     if (logStreams[threadId].is_open()) {
         logStreams[threadId] << logEntryStream.str() << std::endl;
     }
