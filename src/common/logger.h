@@ -33,7 +33,7 @@ class Logger {
 public:
     static Logger& getInstance();
     void log(LogLevel level, const std::string& message, const std::string& file, int line);
-    void setLogFileName(const std::string& logFileName);
+    void setLogFileName(const std::string& log_file_name);
 
 private:
     Logger() {}
@@ -42,32 +42,32 @@ private:
     Logger(const Logger&) = delete;
     Logger& operator=(const Logger&) = delete;
 
-    std::unordered_map<std::thread::id, std::ofstream> logStreams;
-    std::unordered_map<std::thread::id, std::string> logFiles;
+    std::unordered_map<std::thread::id, std::ofstream> log_streams;
+    std::unordered_map<std::thread::id, std::string> log_files;
 
-    std::mutex logMutex;
+    std::mutex log_mutex;
 
-    void openLogFile(const std::string& logFileName);
+    void openLogFile(const std::string& log_file_name);
     std::string getLogLevelString(LogLevel level);
     void throwRelevantException(const std::string& message, const std::string& file);
 };
 
 class AlgorithmException : public std::exception {
 public:
-    explicit AlgorithmException(const std::string& message) : msg_(message) {}
-    virtual const char* what() const noexcept override { return msg_.c_str(); }
+    explicit AlgorithmException(const std::string& message) : msg(message) {}
+    virtual const char* what() const noexcept override { return msg.c_str(); }
 
 private:
-    std::string msg_;
+    std::string msg;
 };
 
 class HouseException : public std::exception {
 public:
-    explicit HouseException(const std::string& message) : msg_(message) {}
-    virtual const char* what() const noexcept override { return msg_.c_str(); }
+    explicit HouseException(const std::string& message) : msg(message) {}
+    virtual const char* what() const noexcept override { return msg.c_str(); }
 
 private:
-    std::string msg_;
+    std::string msg;
 };
 
 extern Logger& logger;
