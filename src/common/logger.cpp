@@ -10,7 +10,6 @@ Logger& Logger::getInstance() {
 void Logger::setLogFileName(const std::string& log_file_name) {
     std::thread::id thread_id = std::this_thread::get_id();
     std::lock_guard<std::mutex> lock(log_mutex);
-    std::optional<std::reference_wrapper<std::ofstream>> logStream;
 
     if (log_files.find(thread_id) != log_files.end()) {
         // Close the current log file if it is open
