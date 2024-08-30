@@ -1,7 +1,7 @@
 // random_speedom_algorithm.cpp
 #include "random_speedom_algorithm.h"
 
-std::pair<bool, Location> RandomSpeedomAlgorithm::RandomInternalHouse::minimalDistanceLocation(size_t current_battery, size_t max_steps) const {
+std::pair<bool, Location> Id_208748665_206476079_RandomSpeedomAlgorithm::RandomInternalHouse::minimalDistanceLocation(size_t current_battery, size_t max_steps) const {
     bool isFirst = true;
     bool isEmpty = true;
     auto min_location = current_location;
@@ -44,7 +44,7 @@ std::pair<bool, Location> RandomSpeedomAlgorithm::RandomInternalHouse::minimalDi
     return std::make_pair(isEmpty, min_location);
 }
 
-REGISTER_ALGORITHM(RandomSpeedomAlgorithm);
+REGISTER_ALGORITHM(Id_208748665_206476079_RandomSpeedomAlgorithm);
 
 
 

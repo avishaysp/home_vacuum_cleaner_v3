@@ -1,7 +1,7 @@
 // speedom_algorithm.cpp
 #include "speedom_algorithm.h"
 
-std::pair<bool, Location> SpeedomAlgorithm::DeterministicInternalHouse::minimalDistanceLocation(size_t current_battery, size_t max_steps) const {
+std::pair<bool, Location> Id_208748665_206476079_SpeedomAlgorithm::DeterministicInternalHouse::minimalDistanceLocation(size_t current_battery, size_t max_steps) const {
     bool isFirst = true;
     bool isEmpty = true;
     auto min_location = current_location;
@@ -31,4 +31,4 @@ std::pair<bool, Location> SpeedomAlgorithm::DeterministicInternalHouse::minimalD
 
 }
 
-REGISTER_ALGORITHM(SpeedomAlgorithm);
+REGISTER_ALGORITHM(Id_208748665_206476079_SpeedomAlgorithm);

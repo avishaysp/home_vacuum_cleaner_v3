@@ -4,7 +4,7 @@
 #include "abstract_speedom_algorithm.h"
 
 
-class SpeedomAlgorithm : public AbstractSpeedomAlgorithm {
+class Id_208748665_206476079_SpeedomAlgorithm : public AbstractSpeedomAlgorithm {
 
 protected:
 
@@ -20,11 +20,10 @@ protected:
 
     DeterministicInternalHouse internal_house;
 
-    InternalHouse& getInternalHouse() override { return internal_house; } 
-
+    InternalHouse& getInternalHouse() override { return internal_house; }
 
 public:
 
-    SpeedomAlgorithm(): AbstractSpeedomAlgorithm(), internal_house(starting_location, current_location) {}
+    Id_208748665_206476079_SpeedomAlgorithm(): AbstractSpeedomAlgorithm(), internal_house(starting_location, current_location) {}
 
 };

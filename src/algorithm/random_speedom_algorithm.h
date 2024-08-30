@@ -6,7 +6,7 @@
 
 
 
-class RandomSpeedomAlgorithm : public AbstractSpeedomAlgorithm {
+class Id_208748665_206476079_RandomSpeedomAlgorithm : public AbstractSpeedomAlgorithm {
 
 protected:
 
@@ -26,7 +26,7 @@ protected:
 
 public:
 
-    RandomSpeedomAlgorithm() : AbstractSpeedomAlgorithm(), internal_house(starting_location, current_location) {}
+    Id_208748665_206476079_RandomSpeedomAlgorithm() : AbstractSpeedomAlgorithm(), internal_house(starting_location, current_location) {}
 
 };
 
