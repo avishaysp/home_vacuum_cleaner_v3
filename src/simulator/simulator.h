@@ -71,4 +71,6 @@ private:
     std::string outputFileName() const;
     std::string getDirectory() const;
 
+    friend class SimulatorTest;
+
 };
