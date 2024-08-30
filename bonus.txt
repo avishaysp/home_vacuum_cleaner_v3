@@ -6,3 +6,12 @@
 
     To run with config file:
         add flag -config=<file_path>
+
+## Gtests
+    Added infrastructure for unit testing our code, integrating as a submodule the open-source module of Gtests.
+    Added some base tests for show casing the utility.
+    To run tests:
+        ./runTests
+
+    Added support for compiling only test required files:
+        make test
