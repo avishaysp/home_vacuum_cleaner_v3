@@ -88,6 +88,7 @@ void SimulationsManager::runAllSimulations() {
                 logger.setLogFileName(std::format("{}-{}.log", house_name, algo_name));
                 simulator.readHouseFile(houses_files[house_index]);
                 simulator.setAlgorithm(algorithm, algo_name);
+                scores[algo_index][house_index] = simulator.timeoutScore();
                 simulator.runWithTimeout();
 
                 scores[algo_index][house_index] = simulator.calcScore();
@@ -141,21 +142,27 @@ void SimulationsManager::loadHouses(const std::string& houses_dir) {
 
 void SimulationsManager::loadAlgorithmLibs(const std::string& algorithms_dir) {
     LOG(INFO, std::format("Loading all .so files from folder: {}", algorithms_dir));
+    auto& registrar = AlgorithmRegistrar::getAlgorithmRegistrar();
 
     for (const auto& entry : std::filesystem::directory_iterator(algorithms_dir)) {
         auto path = entry.path();
         if (path.extension() == ".so") {
             LOG(INFO, std::format("Loading algorithm file: {}", path.filename().string()));
-
+            auto curr_cnt = registrar.count();
             void* handle = dlopen(path.c_str(), RTLD_LAZY);
             if (!handle) {
-                LOG(WARNING, std::string("Failed to load algorithm: ") + path.string());
+                LOG(FATAL, "Failed to load algorithm: " + path.string());
+                logErrorToFile(path.filename().string(), "Failed to load algorithm: " + path.string());
+                continue;
+            } else if (registrar.count() != curr_cnt + 1) {
+                LOG(FATAL, "New algoritm did not raise the counter in the registrar");
+                logErrorToFile(path.filename().string(), "New algoritm did not raise the counter in the registrar");
                 continue;
             } else {
                 library_handles.push_back(handle);
             }
         } else {
-            LOG(INFO, std::format("Non so file: {}", path.filename().string()));
+            LOG(INFO, std::format("found a filw with ext that is not .so: {}", path.filename().string()));
         }
     }
     LOG(INFO, std::format("Loaded {} algorithm libraries", library_handles.size()));

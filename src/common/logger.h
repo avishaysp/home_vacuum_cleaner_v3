@@ -17,17 +17,17 @@
 
 #define FILE_LOC __FILE__, __LINE__
 
-enum LogLevel {
-    INFO,
-    WARNING,
-    FATAL
-};
-
 #ifdef ENABLE_LOGGING
     #define LOG(level, message) logger.log(level, message, FILE_LOC)
 #else
     #define LOG(level, message) do { } while (0)
 #endif
+
+enum LogLevel {
+    INFO,
+    WARNING,
+    FATAL
+};
 
 class Logger {
 public:
@@ -49,7 +49,6 @@ private:
 
     void openLogFile(const std::string& log_file_name);
     std::string getLogLevelString(LogLevel level);
-    void throwRelevantException(const std::string& message, const std::string& file);
 };
 
 class AlgorithmException : public std::exception {

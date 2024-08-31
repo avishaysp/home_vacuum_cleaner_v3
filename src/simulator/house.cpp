@@ -99,7 +99,9 @@ void House::Tile::setAsDockingStation() {
 
 int House::Tile::getDirtLevel() const {
     if (type != Open) {
-        LOG(FATAL, "Tried to get the dirt level of a Wall/Docking tile");
+        auto msg = "Tried to get the dirt level of a Wall/Docking tile";
+        LOG(FATAL, msg);
+        throw HouseException(msg);
     }
     return dirt_level;
 }

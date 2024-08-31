@@ -14,6 +14,9 @@
 #include "status.h"
 
 
+#define TIMEOUT_CONST 1000
+#define BATTERY_FACTOR 100
+
 
 class Simulator {
 
@@ -24,6 +27,7 @@ public:
     void readHouseFile(const std::string input_file_path);
     void setAlgorithm(std::unique_ptr<AbstractAlgorithm>& alg, std::string algo_name);
     void runWithTimeout();
+    size_t timeoutScore() const;
     size_t calcScore() const;
     void enableVisualization();
     const Path& getPath() const;
@@ -62,15 +66,15 @@ private:
     void setProperties(const size_t max_num_of_steps, const size_t max_battery_steps,
                         const std::shared_ptr<House> house_map);
 
-
     void move(Step step);
+    void throwAlgorithmException(const std::string& msg) const;
     void addToHistory(Step step);
     void updateDirtLevel();
 
-    void writeToOutputFile(Status status);
+    void writeToOutputFile(Status status) const;
     std::string outputFileName() const;
     std::string getDirectory() const;
-
+    void writeOutputIfEnabled() const;
     friend class SimulatorTest;
 
 };

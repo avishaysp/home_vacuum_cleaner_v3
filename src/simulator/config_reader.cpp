@@ -9,6 +9,8 @@ void ConfigReader::loadFile() {
 
     if (!configFile.is_open()) {
         LOG(FATAL, std::format("Unable to open config file: {}", filePath));
+        std::cerr << std::format("Unable to open config file: {}", filePath) << std::endl;
+        std::exit(EXIT_FAILURE);
     }
     std::string line;
     while (std::getline(configFile, line)) {

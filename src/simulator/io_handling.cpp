@@ -17,7 +17,7 @@ std::vector<std::string> FileReader::split(const std::string &str, const char de
 size_t FileReader::readArgument(const std::string &str) const {
     std::vector<std::string> splits = split(str, '=');
     if (splits.size() != 2) {
-        LOG(FATAL, "Invalid format: " + str);
+        throwHouseException("Invalid format: " + str);
     }
 
     std::string str_arg = trim(splits[1]);
@@ -29,9 +29,9 @@ size_t FileReader::strToSize_t(const std::string &str) const {
         size_t res = std::stoull(str);
         return res;
     } catch (const std::invalid_argument& e) {
-        LOG(FATAL, "Invalid argument: " + std::string(e.what()));
+        throwHouseException("Invalid argument: " + std::string(e.what()));
     } catch (const std::out_of_range& e) {
-        LOG(FATAL, "Out of range: " + std::string(e.what()));
+        throwHouseException("Out of range: " + std::string(e.what()));
     }
     return 0;
 }
@@ -61,7 +61,7 @@ Location FileReader::parseLocation(const std::string &str) const {
 
 void FileReader::ParseHouse(std::ifstream &file, std::shared_ptr<House> house) const {
     if (!file.is_open()) {
-        LOG(FATAL, "error reading house from file");
+        throwHouseException("error reading house from file");
     }
     size_t num_of_rows = house->getRowsCount();
     size_t num_of_cols = house->getColsCount();
@@ -86,7 +86,7 @@ void FileReader::ParseHouse(std::ifstream &file, std::shared_ptr<House> house) c
                 house->getTile(row_index, col_index).setDirtLevel(int(c - '0'));
                 LOG(INFO, std::format("Set an dirty Tile ({},{}). Dirt level: {}", row_index, col_index, int(c - '0')));
             } else {
-                LOG(FATAL, std::format("Invalid charecter in house map ({},{})", row_index, col_index));
+                throwHouseException(std::format("Invalid charecter in house map ({},{})", row_index, col_index));
             }
         }
         row_index++;
@@ -107,37 +107,37 @@ FileReader::file_reader_output FileReader::readFile() const {
     std::ifstream file(file_path);
 
     if (!file.is_open()) {
-        LOG(FATAL, std::format("Failed to open the file: {}. error: {}", file_path, std::strerror(errno)));
+        throwHouseException(std::format("Failed to open the file: {}. error: {}", file_path, std::strerror(errno)));
     }
 
     std::string line;
 
     if (!std::getline(file, line)) {
-        LOG(FATAL, "Failed to read first line of input file");
+        throwHouseException("Failed to read first line of input file");
     }
 
     if (std::getline(file, line)) {
         max_num_of_steps = readArgument(line);
     } else {
-        LOG(FATAL, "Failed to read 2nd line with MaxSteps");
+        throwHouseException("Failed to read 2nd line with MaxSteps");
     }
 
     if (std::getline(file, line)) {
         max_battery_steps = readArgument(line);
     } else {
-        LOG(FATAL, "Failed to read 3rd line with MaxBattery");
+        throwHouseException("Failed to read 3rd line with MaxBattery");
     }
 
     if (std::getline(file, line)) {
         rows_count = readArgument(line);
     } else {
-        LOG(FATAL, "Failed to read 4th line with Rows");
+        throwHouseException("Failed to read 4th line with Rows");
     }
 
     if (std::getline(file, line)) {
         cols_count = readArgument(line);
     } else {
-        LOG(FATAL, "Failed to read 5th line with Cols");
+        throwHouseException("Failed to read 5th line with Cols");
     }
 
     std::shared_ptr<House> house = std::make_shared<House>(rows_count, cols_count);
@@ -145,6 +145,11 @@ FileReader::file_reader_output FileReader::readFile() const {
     file.close();
 
     return {max_battery_steps, max_num_of_steps, house};
+}
+
+void FileReader::throwHouseException(const std::string& msg) const {
+     LOG(FATAL, msg);
+     throw HouseException(msg);
 }
 
 FileWriter::FileWriter(const std::string& file_path) : file_path(file_path) {
@@ -155,7 +160,7 @@ FileWriter::FileWriter(const std::string& file_path) : file_path(file_path) {
 void FileWriter::writeNumberOfSteps(int number_of_steps) {
     std::ofstream file(file_path, std::ios_base::app);
     if (!file.is_open()) {
-        std::cout << "Could not open file for writing" << std::endl;
+        throwHouseException("Could not open output file for writing");
     }
     file << "NumSteps:" << number_of_steps << std::endl;
 
@@ -218,4 +223,9 @@ void FileWriter::writePath(const Path& path) {
     file << path.toString();
 
     file.close();
+}
+
+void FileWriter::throwHouseException(const std::string& msg) const {
+     LOG(FATAL, msg);
+     throw HouseException(msg);
 }

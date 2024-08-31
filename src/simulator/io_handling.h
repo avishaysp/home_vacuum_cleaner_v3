@@ -22,6 +22,7 @@ class FileReader {
     Location parseLocation(const std::string& str) const;
     size_t readArgument(const std::string& str) const;
     void ParseHouse(std::ifstream &file, std::shared_ptr<House> house) const;
+    void throwHouseException(const std::string& msg) const;
 
 public:
     FileReader(const std::string& file_path);
@@ -37,6 +38,7 @@ public:
 
 class FileWriter {
     std::string file_path;
+    void throwHouseException(const std::string& msg) const;
 
 public:
     FileWriter(const std::string& file_path);

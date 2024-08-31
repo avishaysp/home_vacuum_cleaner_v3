@@ -43,6 +43,9 @@ void Logger::log(LogLevel level, const std::string& message, const std::string& 
         }
     }
 
+    if (!log_stream_opt) {
+        return;
+    }
 
     std::filesystem::path full_path = std::filesystem::absolute(file);
     std::filesystem::path current_path = std::filesystem::current_path();
@@ -54,16 +57,9 @@ void Logger::log(LogLevel level, const std::string& message, const std::string& 
                     << getLogLevelString(level) << ": "
                     << relative_path.string() << ":" << line << " | " << message;
 
-    if (!log_stream_opt) {
-        throwRelevantException(log_entry_stream.str(), relative_path.string());
-    }
     std::ofstream& log_stream = log_stream_opt.value();
 
     log_stream << log_entry_stream.str() << std::endl;
-
-    if (level == FATAL) {
-        throwRelevantException(log_entry_stream.str(), relative_path.string());
-    }
 }
 
 Logger::~Logger() {
@@ -100,14 +96,6 @@ std::string Logger::getLogLevelString(LogLevel level) {
         default:
             return "UNKNOWN";
     }
-}
-
-
-void Logger::throwRelevantException(const std::string& message, const std::string& file) {
-    if (file.find("algorithm") != std::string::npos) {
-        throw AlgorithmException(message);
-    }
-    throw HouseException(message);
 }
 
 

@@ -5,7 +5,7 @@ ArgsParseResults ArgsParser::parse(int argc, char* argv[]) const {
     LOG(INFO, "started args parser");
     using string = std::string;
     if (argc < 1 || argc > 6) {
-        LOG(FATAL, std::format("Expected 0 to 4 arguments for the program, got {}", argc - 1));
+        writeErrorAndExit(std::format("Expected 0 to 4 arguments for the program, got {}", argc - 1));
     }
 
     string house_path = "./";
@@ -27,42 +27,42 @@ ArgsParseResults ArgsParser::parse(int argc, char* argv[]) const {
         string arg = string(argv[i]);
         if (arg.starts_with(house_prefix)) {
             if (got_house_path) {
-                LOG(FATAL, "Recived houses folder argument more than once");
+                writeErrorAndExit("Recived houses folder argument more than once");
             }
             house_path = arg.substr(house_prefix.size());
             got_house_path = true;
 
         } else if (arg.starts_with(algo_prefix)) {
             if (got_algo_path) {
-                LOG(FATAL, "Recived algorithms folder argument more than once");
+                writeErrorAndExit("Recived algorithms folder argument more than once");
             }
             algo_path = arg.substr(algo_prefix.size());
             got_algo_path = true;
 
         } else if (arg.starts_with(config_prefix)) {
             if (config_path.has_value()) {
-                LOG(FATAL, "Received config file argument more than once");
+                writeErrorAndExit("Received config file argument more than once");
             }
             config_path = arg.substr(config_prefix.size());
 
         } else if (arg.starts_with(threads_prefix)) {
             if (got_num_of_threads) {
-                LOG(FATAL, "Recived number of threads argument more than once");
+                writeErrorAndExit("Recived number of threads argument more than once");
             }
             string str_arg = arg.substr(threads_prefix.size());
             if (!isOnlyDigits(str_arg)) {
-                LOG(FATAL, "argument number of threads is invalid");
+                writeErrorAndExit("argument number of threads is invalid");
             }
             user_num_of_threads = std::stoul(str_arg);
             got_num_of_threads = true;
 
         } else if (arg == summary_flag) {
             if(summary_only) {
-                LOG(FATAL, "Recived -summary_only flag more than once");
+                writeErrorAndExit("Recived -summary_only flag more than once");
             }
             summary_only = true;
         } else {
-            LOG(FATAL, std::format("Unknown argument: {}", arg));
+            writeErrorAndExit(std::format("Unknown argument: {}", arg));
         }
     }
 
@@ -78,4 +78,10 @@ ArgsParseResults ArgsParser::parse(int argc, char* argv[]) const {
 
 bool ArgsParser::isOnlyDigits(const std::string& str) const {
     return !str.empty() && std::all_of(str.begin(), str.end(), ::isdigit);
+}
+
+void ArgsParser::writeErrorAndExit(const std::string& msg) const {
+    LOG(FATAL, msg);
+    std::cerr << msg << std::endl;
+    std::exit(EXIT_FAILURE);
 }

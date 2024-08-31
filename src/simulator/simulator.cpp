@@ -36,7 +36,7 @@ void Simulator::disableOutputWriting() {
     write_output = false;
 }
 
-void Simulator::writeToOutputFile(Status status) {
+void Simulator::writeToOutputFile(Status status) const {
     std::string output_file = outputFileName();
     FileWriter fw(output_file);
     fw.writeNumberOfSteps(steps_cnt);
@@ -51,7 +51,7 @@ void Simulator::writeToOutputFile(Status status) {
 //setters
 
 void Simulator::setBatterySize(const size_t battery_size) {
-    this->battery_size = battery_size * 100;
+    this->battery_size = battery_size * BATTERY_FACTOR;
 }
 
 void Simulator::setCurrestBattery() {
@@ -151,7 +151,7 @@ void Simulator::runWithTimeout() {
         auto current_time = std::chrono::steady_clock::now();
         auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(current_time - start_time);
         LOG(INFO, std::format("elapsed time so far: {} us", elapsed_time.count()));
-        if (size_t(elapsed_time.count()) > 1000 * max_steps) {
+        if (size_t(elapsed_time.count()) > TIMEOUT_CONST * max_steps) {
             LOG(WARNING, "Time limit exceeded, ending simulation early");
             curr_status = Status::TIMEOUT;
             break;
@@ -163,7 +163,12 @@ void Simulator::runWithTimeout() {
             break;
         }
 
-        step = algo->nextStep();
+        try {
+            step = algo->nextStep();
+        } catch(const std::exception& e) {
+            throwAlgorithmException(e.what());
+        }
+
         if (step != Step::Finish) { steps_cnt++; }
 
         if ((step == Step::Stay) && (current_location == house->getDockingStation())) {
@@ -171,24 +176,24 @@ void Simulator::runWithTimeout() {
                 LOG(WARNING, "Stayed in docking station even though battary is full. Inappropriate behavior.");
             }
             current_battery = std::min(current_battery + delta_battery, battery_size);
-            LOG(INFO, std::format("New battery after charging {}", current_battery / 100));
+            LOG(INFO, std::format("New battery after charging {}", current_battery / BATTERY_FACTOR));
         }
 
         else if (step == Step::Stay) {
             LOG(INFO, "Stay and clean");
             updateDirtLevel();
-            current_battery -= 100;
+            current_battery -= BATTERY_FACTOR;
         }
 
         else if (step != Step::Finish) {
             move(step);
-            current_battery -= 100;
+            current_battery -= BATTERY_FACTOR;
         }
 
         else {
             LOG(INFO, "Simulator successfully finished running ");
             if (enable_live_visualization) {
-                live_simulator.simulate(*house, current_location, step, false, (max_steps - 1) - i, current_battery / 100);
+                live_simulator.simulate(*house, current_location, step, false, (max_steps - 1) - i, current_battery / BATTERY_FACTOR);
             }
             curr_status = Status::FINISH;
             addToHistory(step);
@@ -197,7 +202,7 @@ void Simulator::runWithTimeout() {
 
         addToHistory(step);
         if (enable_live_visualization) {
-            live_simulator.simulate(*house, current_location, step, current_location == house->getDockingStation(), (max_steps - 1) - i, current_battery / 100);
+            live_simulator.simulate(*house, current_location, step, current_location == house->getDockingStation(), (max_steps - 1) - i, current_battery / BATTERY_FACTOR);
         }
     }
 
@@ -205,11 +210,20 @@ void Simulator::runWithTimeout() {
         curr_status = Status::FINISH;
         addToHistory(Step::Finish);
     }
-    if (write_output) {
-        LOG(INFO, "Prepering output file");
-        std::string output_file = outputFileName();
-        writeToOutputFile(curr_status);
+    writeOutputIfEnabled();
+}
+
+void Simulator::writeOutputIfEnabled() const {
+    if (!write_output) {
+        return;
     }
+    LOG(INFO, "Prepering output file");
+    std::string output_file = outputFileName();
+    writeToOutputFile(curr_status);
+}
+
+size_t Simulator::timeoutScore() const {
+    return max_steps * 2 + initial_dirt_level * 300 + 2000;
 }
 
 size_t Simulator::calcScore() const {
@@ -230,7 +244,7 @@ size_t Simulator::calcScore() const {
 
 void Simulator::updateDirtLevel() {
     if (house->getTile(current_location).getDirtLevel() == 0) {
-        LOG(FATAL, "Stayed in a floor tile that is already clean. Inappropriate behavior.");
+        throwAlgorithmException("Stayed in a floor tile that is already clean. Inappropriate behavior.");
     }
     (house->getTile(current_location)).decreaseOneDirt();
 }
@@ -247,28 +261,29 @@ void Simulator::move(Step step) {
         case Step::North:
             next_row = curr_row - 1;
             if (next_row < 0) {
-                LOG(FATAL, "Tried to move North from northest row");
+                throwAlgorithmException("Tried to move North from northest row");
             }
             next_loc = Location(next_row, curr_col);
             break;
         case Step::South:
             next_row = curr_row + 1;
             if (next_row >= (int)rows) {
-                LOG(FATAL, "Tried to move South from southest row");
+                throwAlgorithmException("Tried to move South from southest row");
             }
             next_loc = Location(next_row, curr_col);
             break;
         case Step::East:
             next_col = curr_col + 1;
             if (next_col >= (int)cols) {
-                LOG(FATAL, "Tried to move East from most east col");
+                throwAlgorithmException("Tried to move East from most east col");
+
             }
             next_loc = Location(curr_row, next_col);
             break;
         case Step::West:
             next_col = curr_col - 1;
             if (next_col < 0) {
-                LOG(FATAL, "Tried to move West from most west col");
+                throwAlgorithmException("Tried to move West from most west col");
             }
             next_loc = Location(curr_row, next_col);
             break;
@@ -276,13 +291,17 @@ void Simulator::move(Step step) {
             break;
     }
     if (house->getTile(next_loc).isWall()) {
-        LOG(FATAL, "Tried to move into a wall");
+        throwAlgorithmException("Tried to move into a wall");
     }
     LOG(INFO, std::format("Move to location {}", next_loc.toString()));
     current_location = next_loc;
 }
 
-
+void Simulator::throwAlgorithmException(const std::string& msg) const {
+    LOG(FATAL, msg);
+    writeOutputIfEnabled();
+    throw AlgorithmException(msg);
+}
 
 
 
