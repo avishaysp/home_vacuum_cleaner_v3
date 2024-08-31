@@ -67,7 +67,7 @@ simulator: $(EXEC)
 # Link object files to create application executable
 $(EXEC): $(OBJS) $(BUILDDIR)/app_main.o
 	@mkdir -p $(BINDIR)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) -o $@ $^ -lpthread -ldl
 
 # Compile application main file
 $(BUILDDIR)/app_main.o: $(APP_MAIN)
@@ -77,12 +77,12 @@ $(BUILDDIR)/app_main.o: $(APP_MAIN)
 # Compile each shared algorithm source file into its own shared library (group 1)
 $(ALGO_BUILDDIR)/$(PREFIX)%.so: $(ALGODIR)/%.cpp
 	@mkdir -p $(ALGO_BUILDDIR)
-	$(CXX) $(CXXFLAGS) -shared -fPIC -o $@ $< -Wl,-undefined,dynamic_lookup
+	$(CXX) $(CXXFLAGS) -shared -fPIC -o $@ $< -Wl,-undefined,dynamic_lookup -lpthread -ldl
 
 # Compile each shared algorithm source file into its own shared library (group 2)
 $(ALGO_BUILDDIR)/$(PREFIX)%.so: $(ALGODIR)/%.cpp
 	@mkdir -p $(ALGO_BUILDDIR)
-	$(CXX) $(CXXFLAGS) -shared -fPIC -o $@ $< -Wl,-undefined,dynamic_lookup
+	$(CXX) $(CXXFLAGS) -shared -fPIC -o $@ $< -Wl,-undefined,dynamic_lookup -lpthread -ldl
 
 # Compile specific algorithm source files into object files
 $(ALGO_BUILDDIR)/%.o: $(ALGODIR)/%.cpp
