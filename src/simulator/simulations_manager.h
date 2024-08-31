@@ -8,6 +8,7 @@
 #include <dlfcn.h>
 #include <thread>
 #include <atomic>
+#include <mutex>
 #include "simulator.h"
 #include "args_parser.h"
 #include "../common/AbstractAlgorithm.h"
@@ -32,6 +33,7 @@ private:
     std::vector<std::string> algos_files;
     std::vector<std::vector<size_t>> scores;
     std::vector<void*> library_handles;
+    std::mutex error_file_mutex;
 
     void initializeSettings(const ArgsParseResults& args);
     void loadHouses(const std::string& houses_dir);

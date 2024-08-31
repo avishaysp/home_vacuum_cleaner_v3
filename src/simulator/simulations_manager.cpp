@@ -234,6 +234,7 @@ std::string SimulationsManager::getHouseName(const std::string& house_file) cons
 }
 
 void SimulationsManager::logErrorToFile(const std::string& name, const std::string& error_message) {
+    std::lock_guard<std::mutex> lock(error_file_mutex);
     std::string error_file_name = name + ".error";
     std::ofstream error_file(error_file_name, std::ios::app);
     if (error_file.is_open()) {
