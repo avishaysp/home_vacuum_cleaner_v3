@@ -15,6 +15,7 @@ struct ArgsParseResults {
 
 class ArgsParser {
     bool isOnlyDigits(const std::string& str) const;
+    void writeErrorAndExit(const std::string& msg) const;
 public:
     ArgsParseResults parse(int argc, char* argv[]) const;
 };

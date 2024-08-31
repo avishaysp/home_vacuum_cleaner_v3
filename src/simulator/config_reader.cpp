@@ -4,11 +4,13 @@
 ConfigReader::ConfigReader(const std::string& filePath) : filePath(filePath) {}
 
 void ConfigReader::loadFile() {
-    LOG_INFO(std::format("Loading config file from path: {}", filePath));
+    LOG(INFO, std::format("Loading config file from path: {}", filePath));
     std::ifstream configFile(filePath);
 
     if (!configFile.is_open()) {
-        LOG_FATAL(std::format("Unable to open config file: {}", filePath));
+        LOG(FATAL, std::format("Unable to open config file: {}", filePath));
+        std::cerr << std::format("Unable to open config file: {}", filePath) << std::endl;
+        std::exit(EXIT_FAILURE);
     }
     std::string line;
     while (std::getline(configFile, line)) {
@@ -18,7 +20,7 @@ void ConfigReader::loadFile() {
             std::string value;
             if (std::getline(lineStream, value)) {
                 configData[key] = value;
-                LOG_INFO(std::format("found argument in config file. key: '{}', val: '{}'", key, value));
+                LOG(INFO, std::format("found argument in config file. key: '{}', val: '{}'", key, value));
             }
         }
     }

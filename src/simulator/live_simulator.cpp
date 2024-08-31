@@ -14,7 +14,7 @@ LiveSimulator::~LiveSimulator() {}
 
 void LiveSimulator::simulate(const House& house, const Location& curr_location, Step step, bool is_docking, size_t remaining_steps, size_t current_battery) const{
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
-    LOG_INFO("Printing house");
+    LOG(INFO, "Printing house");
     printHouseForSimulator(house, curr_location, step, is_docking, remaining_steps, current_battery);
     if (step == Step::Finish) {
         std::cout << "Cleaning has Finished, Exiting Live Simulation" << std::endl;

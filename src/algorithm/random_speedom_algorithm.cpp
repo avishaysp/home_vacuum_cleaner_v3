@@ -18,7 +18,7 @@ std::pair<bool, Location> Id_208748665_206476079_RandomSpeedomAlgorithm::RandomI
         }
 
         isEmpty = false;
-        LOG_INFO(std::format("here location: {}, current distance: {}, current battery: {}", entry.first.toString(), current_dist + 1, current_battery));
+        LOG(INFO, std::format("here location: {}, current distance: {}, current battery: {}", entry.first.toString(), current_dist + 1, current_battery));
 
         //possible locations
         if ((entry.second.distance_from_current < min_distance) || isFirst) {
@@ -30,7 +30,7 @@ std::pair<bool, Location> Id_208748665_206476079_RandomSpeedomAlgorithm::RandomI
         for (const auto& entry : internal_graph) {
             if ((entry.second.distance_from_current == min_distance) && (!entry.second.visited || entry.second.dirt_level != 0) &&
                 isFeasible(calculateTravelDistance(entry.first), current_battery, max_steps)) {
-                LOG_INFO(std::format("RandomSpeedomAlgorithm | minimalDistanceLocation print locations: {}", entry.first.toString()));
+                LOG(INFO, std::format("RandomSpeedomAlgorithm | minimalDistanceLocation print locations: {}", entry.first.toString()));
                 all_minimal_location.insert(entry.first);
             }
         }
@@ -40,7 +40,7 @@ std::pair<bool, Location> Id_208748665_206476079_RandomSpeedomAlgorithm::RandomI
         auto it = std::next(all_minimal_location.begin(), randPos);
         min_location = *it;
     }
-    LOG_INFO(std::format("RandomSpeedomAlgorithm | chosen location form minimalDistanceLocation: {}", min_location.toString()));
+    LOG(INFO, std::format("RandomSpeedomAlgorithm | chosen location form minimalDistanceLocation: {}", min_location.toString()));
     return std::make_pair(isEmpty, min_location);
 }
 
