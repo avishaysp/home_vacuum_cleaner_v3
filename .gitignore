@@ -46,3 +46,6 @@ bin/*
 # output
 houses/*.txt
 summary.csv
+
+# Errors
+*.error
