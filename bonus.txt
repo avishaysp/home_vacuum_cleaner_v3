@@ -15,3 +15,6 @@
 
     Added support for compiling only test required files:
         make test
+
+## HW threads limit
+    We added a verification durring runtime that the program does not lanches more threads than the number of CPU cores.
