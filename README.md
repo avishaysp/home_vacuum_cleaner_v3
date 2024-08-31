@@ -60,7 +60,7 @@ To compile first algorithm:
 
 `make 208748665_206476079_speedom_algorithm`
 
-To compile first algorithm:
+To compile second algorithm:
 
 `make 208748665_206476079_random_speedom_algorithm`
 
