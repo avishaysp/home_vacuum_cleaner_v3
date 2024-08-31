@@ -70,6 +70,7 @@ std::ostream& operator<<(std::ostream& os, const Path& path) {
             c = 'F';
             break;
         default:
+            c = 'F';
             break;
         }
 
