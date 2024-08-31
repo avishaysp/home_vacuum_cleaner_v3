@@ -75,23 +75,19 @@ void FileReader::ParseHouse(std::ifstream &file, std::shared_ptr<House> house) c
             if (c == 'D') {
                 house->getTile(row_index, col_index).setAsDockingStation();
                 house->setDockingStation(Location(row_index, col_index));
-                LOG(INFO, std::format("Set a Docking Station ({},{})", row_index, col_index));
             } else if (c == 'W') {
                 house->getTile(row_index, col_index).setAsWall();
-                LOG(INFO, std::format("ParseHouse Set a Wall ({},{})", row_index, col_index));
             } else if (c == ' ') {
                 house->getTile(row_index, col_index).setDirtLevel(0);
-                LOG(INFO, std::format("Set an empty Tile ({},{})", row_index, col_index));
             } else if (isdigit(c)) {
                 house->getTile(row_index, col_index).setDirtLevel(int(c - '0'));
-                LOG(INFO, std::format("Set an dirty Tile ({},{}). Dirt level: {}", row_index, col_index, int(c - '0')));
             } else {
-                throwHouseException(std::format("Invalid charecter in house map ({},{})", row_index, col_index));
+                throwHouseException("Invalid charecter in house map ({},{})");
             }
         }
         row_index++;
     }
-    LOG(INFO, std::format("Populated house of size {} by {}",num_of_rows, num_of_cols));
+    LOG(INFO,"Populated house of size {} by {}");
 }
 
 
@@ -107,7 +103,7 @@ FileReader::file_reader_output FileReader::readFile() const {
     std::ifstream file(file_path);
 
     if (!file.is_open()) {
-        throwHouseException(std::format("Failed to open the file: {}. error: {}", file_path, std::strerror(errno)));
+        throwHouseException("Failed to open the file: {}. error: {}");
     }
 
     std::string line;

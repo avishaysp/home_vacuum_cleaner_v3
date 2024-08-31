@@ -1,5 +1,4 @@
 // house.cpp
-#include <format>
 #include "house.h"
 
 /* House */
@@ -13,7 +12,6 @@ House::Tile& House::getTile(Location loc) {
 }
 
 House::Tile& House::getTile(size_t row, size_t col) {
-    LOG(INFO, std::format("getTile ({},{})", row, col));
     return mat[row][col];
 }
 

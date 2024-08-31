@@ -121,7 +121,7 @@ size_t Simulator::getHistoryLength() const {
 std::string Simulator::outputFileName() const {
     std::string house_name = getHouseName();
     auto directory = getDirectory();
-    std::string output_file = std::format("{}-{}.txt", house_name, algo_name);
+    std::string output_file = house_name + "-" + algo_name + ".txt";
 
     return directory + output_file;
 }
@@ -145,12 +145,10 @@ std::string Simulator::getDirectory() const {
 void Simulator::runWithTimeout() {
     auto start_time = std::chrono::steady_clock::now();
     Step step;
-    LOG(INFO, std::format("running algorithm '{}' on house {} with timeout of {} ms", algo_name, house_file, max_steps));
 
     for (size_t i = 0; i < max_steps; ++i) {
         auto current_time = std::chrono::steady_clock::now();
         auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(current_time - start_time);
-        LOG(INFO, std::format("elapsed time so far: {} us", elapsed_time.count()));
         if (size_t(elapsed_time.count()) > TIMEOUT_CONST * max_steps) {
             LOG(WARNING, "Time limit exceeded, ending simulation early");
             curr_status = Status::TIMEOUT;
@@ -176,7 +174,6 @@ void Simulator::runWithTimeout() {
                 LOG(WARNING, "Stayed in docking station even though battary is full. Inappropriate behavior.");
             }
             current_battery = std::min(current_battery + delta_battery, battery_size);
-            LOG(INFO, std::format("New battery after charging {}", current_battery / BATTERY_FACTOR));
         }
 
         else if (step == Step::Stay) {
@@ -293,7 +290,6 @@ void Simulator::move(Step step) {
     if (house->getTile(next_loc).isWall()) {
         throwAlgorithmException("Tried to move into a wall");
     }
-    LOG(INFO, std::format("Move to location {}", next_loc.toString()));
     current_location = next_loc;
 }
 

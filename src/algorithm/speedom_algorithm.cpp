@@ -8,7 +8,6 @@ std::pair<bool, Location> Id_208748665_206476079_SpeedomAlgorithm::Deterministic
     size_t min_distance = 0;
 
     for (const auto& entry : internal_graph) {
-        LOG(INFO, std::format("SpeedomAlgorithm | print locations: {}", entry.first.toString()));
         if ((entry.second.visited && entry.second.dirt_level == 0) || (entry.first == current_location)) {
             continue;
         }
@@ -26,7 +25,6 @@ std::pair<bool, Location> Id_208748665_206476079_SpeedomAlgorithm::Deterministic
             isFirst = false;
         }
     }
-    LOG(INFO, std::format("SpeedomAlgorithm | chosen location form minimalDistanceLocation: {}", min_location.toString()));
     return std::make_pair(isEmpty, min_location);
 
 }
