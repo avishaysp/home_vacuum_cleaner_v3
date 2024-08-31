@@ -23,10 +23,15 @@ enum LogLevel {
     FATAL
 };
 
+
+#define LOG_FATAL(message) logger.log(FATAL, message, FILE_LOC)
+
 #ifdef ENABLE_LOGGING
-    #define LOG(level, message) logger.log(level, message, FILE_LOC)
+    #define LOG_INFO(message) logger.log(INFO, message, FILE_LOC)
+    #define LOG_WARNING(message) logger.log(WARNING, message, FILE_LOC)
 #else
-    #define LOG(level, message) do { } while (0)
+    #define LOG_INFO(message) do { } while (0)
+    #define LOG_WARNING(message) do { } while (0)
 #endif
 
 class Logger {
