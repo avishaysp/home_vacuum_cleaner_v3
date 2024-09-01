@@ -155,7 +155,6 @@ void SimulationsManager::loadAlgorithmLibs(const std::string& algorithms_dir) {
                 logErrorToFile(path.filename().string(), "Failed to load algorithm: " + path.string());
             } else if (registrar.count() != curr_cnt + 1) {
                 LOG(FATAL, "New algoritm did not raise the counter in the registrar");
-                std::cout << path.filename().string() << std::endl;
                 logErrorToFile(path.filename().string(), "New algoritm did not raise the counter in the registrar");
                 dlclose(handle);
             } else {
