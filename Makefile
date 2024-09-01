@@ -2,7 +2,7 @@
 CXX = g++
 
 # Compiler flags
-CXXFLAGS = -std=c++20 -Wall -Wextra -Werror -pedantic -O3
+CXXFLAGS = -std=c++20 -Wall -Wextra -Werror -pedantic -O3 -fPIC
 
 # Directories
 SRCDIR = src
@@ -75,29 +75,29 @@ $(BUILDDIR)/app_main.o: $(APP_MAIN)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Compile each shared algorithm source file into its own shared library (group 1)
-$(ALGO_BUILDDIR)/$(PREFIX)%.so: $(ALGODIR)/%.cpp
+$(ALGO_BUILDDIR)/$(PREFIX)%.so: $(ALGODIR)/%.cpp $(ALGO_BUILDDIR)/abstract_speedom_algorithm.o
 	@mkdir -p $(ALGO_BUILDDIR)
-	$(CXX) $(CXXFLAGS) -shared -fPIC -o $@ $< -Wl,-undefined,dynamic_lookup -lpthread -ldl
+	$(CXX) $(CXXFLAGS) -shared -fPIC -o $@ $^ -lpthread -ldl
 
 # Compile each shared algorithm source file into its own shared library (group 2)
-$(ALGO_BUILDDIR)/$(PREFIX)%.so: $(ALGODIR)/%.cpp
+$(ALGO_BUILDDIR)/$(PREFIX)%.so: $(ALGODIR)/%.cpp $(ALGO_BUILDDIR)/abstract_speedom_algorithm.o
 	@mkdir -p $(ALGO_BUILDDIR)
-	$(CXX) $(CXXFLAGS) -shared -fPIC -o $@ $< -Wl,-undefined,dynamic_lookup -lpthread -ldl
+	$(CXX) $(CXXFLAGS) -shared -fPIC -o $@ $^ -lpthread -ldl
 
 # Compile specific algorithm source files into object files
 $(ALGO_BUILDDIR)/%.o: $(ALGODIR)/%.cpp
 	@mkdir -p $(ALGO_BUILDDIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -fPIC -c $< -o $@
 
 # Compile source files to object files
 $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -fPIC -c $< -o $@
 
 # Compile test source files to object files
 $(TEST_OBJS): $(BUILDDIR)/tests/%.o: tests/%.cpp $(GTEST_OBJS)
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) $(GTEST_INCS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(GTEST_INCS) -fPIC -c $< -o $@
 
 # Build test executable
 tests: $(TEST_EXEC)
@@ -110,7 +110,7 @@ $(TEST_EXEC): $(TEST_OBJS) $(GTEST_OBJS) $(filter-out $(BUILDDIR)/app_main.o, $(
 # Compile test main file
 $(BUILDDIR)/test_main.o: $(TEST_MAIN)
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) $(GTEST_INCS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(GTEST_INCS) -fPIC -c $< -o $@
 
 # Run tests
 .PHONY: test
