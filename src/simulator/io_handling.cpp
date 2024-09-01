@@ -75,23 +75,23 @@ void FileReader::ParseHouse(std::ifstream &file, std::shared_ptr<House> house) c
             if (c == 'D') {
                 house->getTile(row_index, col_index).setAsDockingStation();
                 house->setDockingStation(Location(row_index, col_index));
-                LOG(INFO, std::format("Set a Docking Station ({},{})", row_index, col_index));
+                LOG(INFO,"Set a Docking Station (" + std::to_string(row_index) + "," + std::to_string(col_index) + ")");
             } else if (c == 'W') {
                 house->getTile(row_index, col_index).setAsWall();
-                LOG(INFO, std::format("ParseHouse Set a Wall ({},{})", row_index, col_index));
+                LOG(INFO, "ParseHouse Set a Wall (" + std::to_string(row_index) + "," + std::to_string(col_index) + ")");
             } else if (c == ' ') {
                 house->getTile(row_index, col_index).setDirtLevel(0);
-                LOG(INFO, std::format("Set an empty Tile ({},{})", row_index, col_index));
+                LOG(INFO, "Set an empty Tile (" + std::to_string(row_index) + "," + std::to_string(col_index) + ")");
             } else if (isdigit(c)) {
                 house->getTile(row_index, col_index).setDirtLevel(int(c - '0'));
-                LOG(INFO, std::format("Set an dirty Tile ({},{}). Dirt level: {}", row_index, col_index, int(c - '0')));
+                LOG(INFO, "Set an dirty Tile (" + std::to_string(row_index) + "," + std::to_string(col_index) + "). Dirt level: " + std::to_string(int(c - '0')));
             } else {
-                throwHouseException(std::format("Invalid charecter in house map ({},{})", row_index, col_index));
+                throwHouseException("Invalid charecter in house map (" + std::to_string(row_index) + "," + std::to_string(col_index) + ")");
             }
         }
         row_index++;
     }
-    LOG(INFO, std::format("Populated house of size {} by {}",num_of_rows, num_of_cols));
+    LOG(INFO, "Populated house of size " + std::to_string(num_of_rows) + " by " + std::to_string(num_of_cols));
 }
 
 
@@ -107,7 +107,7 @@ FileReader::file_reader_output FileReader::readFile() const {
     std::ifstream file(file_path);
 
     if (!file.is_open()) {
-        throwHouseException(std::format("Failed to open the file: {}. error: {}", file_path, std::strerror(errno)));
+        throwHouseException("Failed to open the file: " + file_path);
     }
 
     std::string line;
