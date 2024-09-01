@@ -12,10 +12,8 @@
 #include "../common/battery_meter_impl.h"
 #include "Path.h"
 #include "status.h"
+#include "../common/consts.h"
 
-
-#define TIMEOUT_CONST 1000
-#define BATTERY_FACTOR 100
 
 
 class Simulator {

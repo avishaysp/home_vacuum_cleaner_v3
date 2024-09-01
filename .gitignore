@@ -49,3 +49,5 @@ summary.csv
 
 # Errors
 *.error
+
+build/*

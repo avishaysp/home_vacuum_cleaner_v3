@@ -1,4 +1,4 @@
-// random_speedom_algorithm.cpp
+// abstract_speedom_algorithm.cpp
 #include "abstract_speedom_algorithm.h"
 
 AbstractSpeedomAlgorithm::AbstractSpeedomAlgorithm() :
@@ -42,7 +42,7 @@ Step AbstractSpeedomAlgorithm::calculateNextStep() {
     std::vector<Location> possibleLocations = getPossibleLocations();
     size_t battery_level = battery_meter->getBatteryState();
     size_t dirt_level = current_location == starting_location ? 0 : dirt_sensor->dirtLevel();
-    LOG(INFO, std::format("AbstractSpeedomAlgorithm | current_location: {}, battery_level: {}, dirt_level: {}", current_location.toString(), battery_level, dirt_level));
+    LOG(INFO, "AbstractSpeedomAlgorithm | current_location: " + current_location.toString() + ", battery_level: " + std::to_string(battery_level) + ", dirt_level: " + std::to_string(dirt_level));
 
     if (first_step) {
         battery_size = battery_level;
@@ -124,7 +124,7 @@ std::vector<Location> AbstractSpeedomAlgorithm::getPossibleLocations() const {
 
 void AbstractSpeedomAlgorithm::InternalHouse::bfs(LocationType start, std::optional<Location> chosen_location) {
 
-    LOG(INFO, std::format("AbstractSpeedomAlgorithm | started BFS from {}", locationTypetoString(start)));
+    LOG(INFO, "AbstractSpeedomAlgorithm | started BFS from "+ locationTypetoString(start));
     std::queue<Location> q;
     std::unordered_set<Location> bfsVisited;
 
@@ -179,14 +179,14 @@ size_t AbstractSpeedomAlgorithm::InternalHouse::getDistanceToDoc(Location other_
 }
 
 Location AbstractSpeedomAlgorithm::InternalHouse::getNextLocationToTarget(InternalHouse::LocationType target) const {
-    LOG(INFO, std::format("AbstractSpeedomAlgorithm | getNextLocationToTarget {}, {}", current_location.toString(), locationTypetoString(target)));
+    LOG(INFO, "AbstractSpeedomAlgorithm | getNextLocationToTarget " + current_location.toString() + ", " + locationTypetoString(target));
     return target == DOCKING ?
         internal_graph.at(current_location).father_from_docking.value() : internal_graph.at(current_location).father_from_chosen.value();
 }
 
 std::pair<Step, Location> AbstractSpeedomAlgorithm::InternalHouse::calcStepToTarget(InternalHouse::LocationType target) const {
     Location next = getNextLocationToTarget(target);
-    LOG(INFO, std::format("AbstractSpeedomAlgorithm | calcStepToTarget, next location : {}", next.toString()));
+    LOG(INFO, "AbstractSpeedomAlgorithm | calcStepToTarget, next location : " + next.toString());
     if (next.getRow() > current_location.getRow()){
         return std::make_pair(Step::South, next);
     }
@@ -258,16 +258,11 @@ bool AbstractSpeedomAlgorithm::InternalHouse::reachableFromCurrent(const Locatio
     if (start == DOCKING){
         return (1 + 2 * internal_graph.at(loc).distance_from_docking_station) <= std::min(current_battery, max_steps);
     }
-    LOG(INFO, std::format("AbstractSpeedomAlgorithm | location: {}, dis from docking: {}, dis from current: {}, battery size: {}, remaining steps: {}",
-                                loc.toString(),
-                                internal_graph.at(loc).distance_from_docking_station,
-                                internal_graph.at(loc).distance_from_current,
-                                current_battery,max_steps));
     return (1 + internal_graph.at(loc).distance_from_docking_station + internal_graph.at(loc).distance_from_current) <= std::min(current_battery, max_steps);
 }
 
 bool AbstractSpeedomAlgorithm::InternalHouse::isFeasible(size_t travel_distance, size_t current_battery, size_t max_steps) const {
-    LOG(INFO, std::format("AbstractSpeedomAlgorithm | isFeasible travel distance: {}, current battery: {}, max steps: {}", travel_distance, current_battery, max_steps));
+    LOG(INFO, "AbstractSpeedomAlgorithm | isFeasible travel distance: " + std::to_string(travel_distance) + ", current battery: " +std::to_string(current_battery) + ", max steps: " + std::to_string(max_steps));
     return travel_distance + 1 <= std::min(current_battery, max_steps);
 }
 

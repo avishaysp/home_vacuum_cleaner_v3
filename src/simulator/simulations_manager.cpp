@@ -31,22 +31,22 @@ void SimulationsManager::initializeSettings(const ArgsParseResults& args) {
     ConfigReader configReader(*args.config_path);
     configReader.loadFile();
     if (auto ret = configReader.getValue("house_path"); ret.has_value()) {
-        LOG(INFO, std::format("overriding houses folder from config: {}", ret.value()));
+        LOG(INFO, "overriding houses folder from config: " + ret.value());
         houses_path = ret.value();
     }
     if (auto ret = configReader.getValue("algo_path"); ret.has_value()) {
-        LOG(INFO, std::format("overriding algo folder from config: {}", ret.value()));
+        LOG(INFO, "overriding algo folder from config: " + ret.value());
         algo_path = ret.value();
     }
     if (auto ret = configReader.getValue("num_threads"); ret.has_value()) {
         auto val = ret.value();
         if (!val.empty() && std::all_of(val.begin(), val.end(), ::isdigit)) {
-            LOG(INFO, std::format("overriding threads count from config: {}", ret.value()));
+            LOG(INFO, "overriding threads count from config: " + ret.value());
             user_num_of_threads =  std::stoul(val);
         }
     }
     if (auto ret = configReader.getValue("summary_only"); ret.has_value()) {
-        LOG(INFO, std::format("overriding 'summary only' from config: {}", ret.value()));
+        LOG(INFO, "overriding 'summary only' from config: " + ret.value());
         summary_only = ret.value() == "true";
     }
 
@@ -85,7 +85,7 @@ void SimulationsManager::runAllSimulations() {
             try {
                 std::string algo_name = algo_iter->name();
                 Simulator simulator;
-                logger.setLogFileName(std::format("{}-{}.log", house_name, algo_name));
+                logger.setLogFileName(house_name + "-" + algo_name + ".log");
                 simulator.readHouseFile(houses_files[house_index]);
                 simulator.setAlgorithm(algorithm, algo_name);
                 scores[algo_index][house_index] = simulator.timeoutScore();
@@ -111,12 +111,12 @@ void SimulationsManager::runAllSimulations() {
 
 void SimulationsManager::launchThreads(std::function<void()> job, size_t total_tasks) {
     auto hw_limit = size_t(std::thread::hardware_concurrency());
-    LOG(INFO, std::format("hardware support up to {} threads", hw_limit));
+    LOG(INFO, "hardware support up to " + std::to_string(hw_limit) + " threads");
     size_t max_threads_count = std::min({user_num_of_threads, total_tasks, hw_limit});
-    LOG(INFO, std::format("launching {} threads", max_threads_count));
+    LOG(INFO, "launching " + std::to_string(max_threads_count) + " threads");
     std::vector<std::thread> threads;
     for (size_t i = 0; i < max_threads_count; i++) {
-        LOG(INFO, std::format("launching thread {}", i + 1));
+        LOG(INFO, "launching thread " + std::to_string(i + 1));
         threads.emplace_back(job);
     }
 
@@ -128,44 +128,44 @@ void SimulationsManager::launchThreads(std::function<void()> job, size_t total_t
 }
 
 void SimulationsManager::loadHouses(const std::string& houses_dir) {
-    LOG(INFO, std::format("searching for .house files in folder: {}", houses_dir.size()));
+    LOG(INFO, "searching for .house files in folder: " + std::to_string(houses_dir.size()));
 
     for (const auto& entry : std::filesystem::directory_iterator(houses_dir)) {
         auto path = entry.path();
         if (path.extension() == ".house") {
-            LOG(INFO, std::format("found house file: {}", path.filename().string()));
+            LOG(INFO, "found house file: " + path.filename().string());
             houses_files.push_back(path);
         }
     }
-    LOG(INFO, std::format("found total of {} house files in relevant dir", houses_files.size()));
+    LOG(INFO, "found total of " + std::to_string(houses_files.size()) + " house files in relevant dir");
 }
 
 void SimulationsManager::loadAlgorithmLibs(const std::string& algorithms_dir) {
-    LOG(INFO, std::format("Loading all .so files from folder: {}", algorithms_dir));
+    LOG(INFO, "Loading all .so files from folder: " + algorithms_dir);
     auto& registrar = AlgorithmRegistrar::getAlgorithmRegistrar();
 
     for (const auto& entry : std::filesystem::directory_iterator(algorithms_dir)) {
         auto path = entry.path();
         if (path.extension() == ".so") {
-            LOG(INFO, std::format("Loading algorithm file: {}", path.filename().string()));
+            LOG(INFO, "Loading algorithm file: " + path.filename().string());
             auto curr_cnt = registrar.count();
             void* handle = dlopen(path.c_str(), RTLD_LAZY);
             if (!handle) {
                 LOG(FATAL, "Failed to load algorithm: " + path.string());
                 logErrorToFile(path.filename().string(), "Failed to load algorithm: " + path.string());
-                continue;
             } else if (registrar.count() != curr_cnt + 1) {
                 LOG(FATAL, "New algoritm did not raise the counter in the registrar");
+                std::cout << path.filename().string() << std::endl;
                 logErrorToFile(path.filename().string(), "New algoritm did not raise the counter in the registrar");
-                continue;
+                dlclose(handle);
             } else {
                 library_handles.push_back(handle);
             }
         } else {
-            LOG(INFO, std::format("found a filw with ext that is not .so: {}", path.filename().string()));
+            LOG(INFO,"found a file with ext that is not .so: " + path.filename().string());
         }
     }
-    LOG(INFO, std::format("Loaded {} algorithm libraries", library_handles.size()));
+    LOG(INFO, "Loaded " + std::to_string(library_handles.size()) + " algorithm libraries");
 }
 
 void SimulationsManager::unloadAlgorithmLibs() {

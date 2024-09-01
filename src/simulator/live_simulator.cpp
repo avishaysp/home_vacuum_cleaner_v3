@@ -1,7 +1,6 @@
 #include "live_simulator.h"
 #include <ctime>
 #include <iomanip>
-#include <format>
 #include <thread>
 
 

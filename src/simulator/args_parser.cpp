@@ -5,7 +5,7 @@ ArgsParseResults ArgsParser::parse(int argc, char* argv[]) const {
     LOG(INFO, "started args parser");
     using string = std::string;
     if (argc < 1 || argc > 6) {
-        writeErrorAndExit(std::format("Expected 0 to 4 arguments for the program, got {}", argc - 1));
+        writeErrorAndExit("Expected 0 to 4 arguments for the program, got {}" + std::to_string(argc - 1));
     }
 
     string house_path = "./";
@@ -62,16 +62,16 @@ ArgsParseResults ArgsParser::parse(int argc, char* argv[]) const {
             }
             summary_only = true;
         } else {
-            writeErrorAndExit(std::format("Unknown argument: {}", arg));
+            writeErrorAndExit("Unknown argument: " + arg);
         }
     }
 
-    LOG(INFO, std::format("houses folder: {}", house_path));
-    LOG(INFO, std::format("algorithms folder: {}", algo_path));
-    LOG(INFO, std::format("user requested number of threads: {}", user_num_of_threads));
-    LOG(INFO, std::format("summary only: {}", summary_only ? "true" : "false"));
+    LOG(INFO, "houses folder: " + house_path);
+    LOG(INFO,"algorithms folder: " + algo_path);
+    LOG(INFO, "user requested number of threads: " + std::to_string(user_num_of_threads));
+    LOG(INFO, "summary only: " + summary_only ? "true" : "false");
     if (config_path.has_value()) {
-        LOG(INFO, std::format("config file path: {}", config_path.value()));
+        LOG(INFO, "config file path: " + config_path.value());
     }
     return ArgsParseResults{house_path, algo_path, config_path, user_num_of_threads, summary_only};
 }

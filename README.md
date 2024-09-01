@@ -51,9 +51,13 @@ git clone --recurse-submodules git@github.com:avishaysp/home_vacuum_cleaner_v3.g
 
 # Compile
 
-To compile the whole program:
+To compile the program:
 
-`make all`
+`./build.sh`
+
+Then, to compile all the targets together:
+
+`make all_targets`
 
 
 To compile first algorithm:
@@ -66,9 +70,9 @@ To compile second algorithm:
 
 To compile the simulator:
 
-`make simulator`
+`make myrobot`
 
-To clean bin files:
+To clean files:
 
 `make clean`
 
@@ -110,7 +114,7 @@ To comile only the test target:
 
 `make test`
 
-(test target is included also in `make all`)
+(test target is included also in `make all_targets`)
 
 To run tests:
 

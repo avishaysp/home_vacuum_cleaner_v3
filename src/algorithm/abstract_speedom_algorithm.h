@@ -1,4 +1,4 @@
-// random_speedom_algorithm.h
+// abstract_speedom_algorithm.h
 #pragma once
 
 #include <unordered_map>
@@ -27,7 +27,7 @@ protected:
             return std::hash<int>()(loc.getRow()) ^ std::hash<int>()(loc.getCol());
         }
     };
-    
+
     // Custom equality function
     struct AlgorithmLocationEqual {
         bool operator()(const Location& lhs, const Location& rhs) const {
@@ -69,7 +69,7 @@ protected:
 
         Location& starting_location;
         Location& current_location;
-        
+
 
         std::unordered_map<Location, tile_stats, AlgorithmLocationHash, AlgorithmLocationEqual> internal_graph;
 

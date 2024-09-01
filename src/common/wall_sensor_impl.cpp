@@ -31,4 +31,5 @@ bool WallSensorImpl::isWall(Direction d) const {
     default:
         break;
     }
+    return false;
 }
