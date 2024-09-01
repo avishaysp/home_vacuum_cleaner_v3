@@ -12,7 +12,7 @@
 #include <filesystem>
 
 // uncomment this to enable logging:
-// #define ENABLE_LOGGING
+#define ENABLE_LOGGING
 
 #define FILE_LOC __FILE__, __LINE__
 

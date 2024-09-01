@@ -149,11 +149,11 @@ void Simulator::runWithTimeout() {
     for (size_t i = 0; i < max_steps; ++i) {
         auto current_time = std::chrono::steady_clock::now();
         auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(current_time - start_time);
-        if (size_t(elapsed_time.count()) > TIMEOUT_CONST * max_steps) {
-            LOG(WARNING, "Time limit exceeded, ending simulation early");
-            curr_status = Status::TIMEOUT;
-            break;
-        }
+        // if (size_t(elapsed_time.count()) > TIMEOUT_CONST * max_steps) {
+        //     LOG(WARNING, "Time limit exceeded, ending simulation early");
+        //     curr_status = Status::TIMEOUT;
+        //     break;
+        // }
 
         if ((current_location != house->getDockingStation()) && current_battery <= 0) {
             LOG(WARNING, "Battery level is empty, Can not continue cleaning");
