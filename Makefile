@@ -105,7 +105,7 @@ tests: $(TEST_EXEC)
 # Link test object files to create test executable
 $(TEST_EXEC): $(TEST_OBJS) $(GTEST_OBJS) $(filter-out $(BUILDDIR)/app_main.o, $(OBJS))
 	@mkdir -p $(BINDIR)
-	$(CXX) $(CXXFLAGS) -o $@ $^ -lpthread
+	$(CXX) $(CXXFLAGS) -o $@ $^ -lpthread -ldl
 
 # Compile test main file
 $(BUILDDIR)/test_main.o: $(TEST_MAIN)
