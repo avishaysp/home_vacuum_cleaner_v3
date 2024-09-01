@@ -12,7 +12,6 @@
 #include "../common/BatteryMeter.h"
 #include "../common/WallSensor.h"
 #include "../common/DirtSensor.h"
-#include "../common/logger.h"
 #include "../common/location.h"
 #include "AlgorithmRegistration.h"
 
@@ -27,7 +26,7 @@ protected:
             return std::hash<int>()(loc.getRow()) ^ std::hash<int>()(loc.getCol());
         }
     };
-    
+
     // Custom equality function
     struct AlgorithmLocationEqual {
         bool operator()(const Location& lhs, const Location& rhs) const {
@@ -69,7 +68,7 @@ protected:
 
         Location& starting_location;
         Location& current_location;
-        
+
 
         std::unordered_map<Location, tile_stats, AlgorithmLocationHash, AlgorithmLocationEqual> internal_graph;
 

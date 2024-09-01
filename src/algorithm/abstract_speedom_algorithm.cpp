@@ -38,7 +38,6 @@ Step AbstractSpeedomAlgorithm::updateCurrentLocAndGetNextStep(InternalHouse::Loc
 
 Step AbstractSpeedomAlgorithm::calculateNextStep() {
     auto& house = getInternalHouse();
-    LOG(INFO, "AbstractSpeedomAlgorithm | nextStep");
     std::vector<Location> possibleLocations = getPossibleLocations();
     size_t battery_level = battery_meter->getBatteryState();
     size_t dirt_level = current_location == starting_location ? 0 : dirt_sensor->dirtLevel();
@@ -102,7 +101,6 @@ Step AbstractSpeedomAlgorithm::nextStep() {
 
 
 std::vector<Location> AbstractSpeedomAlgorithm::getPossibleLocations() const {
-    LOG(INFO, "AbstractSpeedomAlgorithm | getPossibleLocations");
     std::vector<Location> possible_Locations;
     int curr_row = current_location.getRow();
     int curr_col = current_location.getCol();
@@ -172,7 +170,6 @@ void AbstractSpeedomAlgorithm::InternalHouse::bfs(LocationType start, std::optio
 
 
 size_t AbstractSpeedomAlgorithm::InternalHouse::getDistanceToDoc(Location other_location) const {
-    LOG(INFO, "AbstractSpeedomAlgorithm | getDistanceToDoc");
     return internal_graph.at(other_location).distance_from_docking_station;
 }
 
@@ -197,12 +194,10 @@ std::pair<Step, Location> AbstractSpeedomAlgorithm::InternalHouse::calcStepToTar
 }
 
 void AbstractSpeedomAlgorithm::InternalHouse::updateGraph(size_t dirt_level, const std::vector<Location>& possible_Locations) {
-    LOG(INFO, "AbstractSpeedomAlgorithm | updateGraph");
     internal_graph.at(current_location).dirt_level = dirt_level;
     if(internal_graph.at(current_location).visited) {
         return;
     }
-    LOG(INFO, "Speedom Algorithm | after verifying visited");
     internal_graph.at(current_location).visited = true;
     internal_graph.at(current_location).neighbors = possible_Locations;
     for (auto& loc : possible_Locations) {
