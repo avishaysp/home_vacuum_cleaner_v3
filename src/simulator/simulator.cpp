@@ -165,6 +165,7 @@ void Simulator::runWithTimeout() {
             step = algo->nextStep();
         } catch(const std::exception& e) {
             throwAlgorithmException(e.what());
+            return;
         }
 
         if (step != Step::Finish) { steps_cnt++; }
