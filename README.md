@@ -55,6 +55,10 @@ To compile the program:
 
 `./build.sh`
 
+From now on, run only from this folder:
+
+`cd build/`
+
 Then, to compile all the targets together:
 
 `make all_targets`
