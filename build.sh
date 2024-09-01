@@ -6,3 +6,4 @@ cd build
 
 cmake ..
 
+cd build
