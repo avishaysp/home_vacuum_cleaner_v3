@@ -139,7 +139,8 @@ void SimulationsManager::loadAlgorithmLibs(const std::string& algorithms_dir) {
             auto curr_cnt = registrar.count();
             void* handle = dlopen(path.c_str(), RTLD_LAZY);
             if (!handle) {
-                LOG(FATAL, "Failed to load algorithm: " + path.string());
+                std::string error_message = dlerror();
+                LOG(FATAL, "Failed to load algorithm: " + path.string() + " Error: " + error_message);
                 logErrorToFile(path.filename().string(), "Failed to load algorithm: " + path.string());
                 continue;
             } else if (registrar.count() != curr_cnt + 1) {
